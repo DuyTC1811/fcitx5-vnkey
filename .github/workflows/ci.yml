@@ -1,0 +1,34 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  core-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y cmake g++
+      - run: cmake -B build -DBUILD_ADDON=OFF -DCMAKE_BUILD_TYPE=Debug
+             -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"
+      - run: cmake --build build -j
+      - run: ctest --test-dir build --output-on-failure
+
+  full-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu:24.04
+            setup: apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y
+                   cmake g++ ninja-build libfcitx5core-dev libfcitx5utils-dev fcitx5-modules-dev
+          - distro: fedora:40
+            setup: dnf install -y cmake gcc-c++ ninja-build fcitx5-devel
+          - distro: archlinux:latest
+            setup: pacman -Syu --noconfirm cmake gcc ninja fcitx5
+    runs-on: ubuntu-latest
+    container: ${{ matrix.distro }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ${{ matrix.setup }}
+      - run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build
+      - run: ctest --test-dir build --output-on-failure
