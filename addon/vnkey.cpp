@@ -4,8 +4,8 @@
 #include <fcitx/inputpanel.h>
 #include <fcitx-utils/keysymgen.h>
 
-#include "engine/input_processor.h"
-#include "engine/key_event.h"   // struct nhẹ của core, độc lập Fcitx5
+#include "input_method.hpp"
+#include "keyinput.hpp"   // struct nhẹ của core, độc lập Fcitx5
 
 using namespace fcitx;
 

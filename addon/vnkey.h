@@ -5,7 +5,7 @@
 #include <fcitx/addonfactory.h>
 #include <fcitx/addonmanager.h>
 
-#include "engine/input_processor.h"  // lớp core của bạn, KHÔNG phụ thuộc Fcitx5
+#include "input_method.hpp"  // lớp core của bạn, KHÔNG phụ thuộc Fcitx5
 
 class VnKeyEngine final : public fcitx::InputMethodEngine {
 public:
