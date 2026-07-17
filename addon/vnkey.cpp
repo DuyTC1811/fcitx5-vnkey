@@ -1,93 +1,92 @@
-// addon/vnkey.cpp
 #include "vnkey.h"
 
-#include <string>
-#include <fcitx-utils/keysym.h>
+#include <fcitx/inputcontext.h>
 #include <fcitx/inputpanel.h>
+#include <fcitx-utils/keysymgen.h>
 
-#include "keymap.h"
+#include "engine/input_processor.h"
+#include "engine/key_event.h"   // struct nhẹ của core, độc lập Fcitx5
 
-namespace fcitx {
-    VnKeyEngine::VnKeyEngine(Instance *instance)
-        : instance_(instance),
-          factory_([](InputContext &ic) { return new VnKeyState(&ic); }) {
-        instance_->inputContextManager().registerProperty("vnkeyState", &factory_);
+using namespace fcitx;
+
+namespace {
+
+// Chuyển fcitx::Key sang kiểu key event riêng của core, để core
+// không bao giờ phải include <fcitx/...>. Đây là "ranh giới" giữa
+// hai layer mà bạn đã quyết định: addon -> core, không ngược lại.
+engine::KeyEvent toCoreKeyEvent(const Key &key) {
+    engine::KeyEvent ev;
+
+    if (key.isSimple()) {
+        // phím in được (a-z, dấu câu, ...)
+        ev.kind = engine::KeyEvent::Kind::Character;
+        ev.character = static_cast<char32_t>(key.sym());
+    } else if (key.check(FcitxKey_BackSpace)) {
+        ev.kind = engine::KeyEvent::Kind::Backspace;
+    } else if (key.check(FcitxKey_Delete)) {
+        ev.kind = engine::KeyEvent::Kind::Delete;
+    } else {
+        ev.kind = engine::KeyEvent::Kind::Other;
     }
 
-    void VnKeyEngine::keyEvent(const InputMethodEntry & /*entry*/, KeyEvent &keyEvent) {
-        if (keyEvent.isRelease()) {
-            return;
-        }
+    return ev;
+}
 
-        InputContext *ic = keyEvent.inputContext();
-        auto *state = ic->propertyFor(&factory_);
+} // namespace
 
-        // Dịch phím Fcitx5 -> phím thuần của core, rồi để core quyết định.
-        const engine::KeyInput ki = toKeyInput(keyEvent.key());
-        const engine::Result result = state->processor().process(ki);
+VnKeyEngine::VnKeyEngine(Instance *instance)
+    : instance_(instance),
+      factory_([](InputContext &) { return new engine::InputProcessor(); }) {
+    instance_->inputContextManager().registerProperty("vnkeyProcessor", &factory_);
+}
 
-        switch (result.action) {
-            case engine::Action::PASS_THROUGH:
-                // Core không xử lý -> không filter, ứng dụng nhận phím như thường.
-                return;
+void VnKeyEngine::activate(const InputMethodEntry &, InputContextEvent &event) {
+    // Reset buffer khi engine được kích hoạt cho 1 context mới,
+    // tránh dính state cũ từ lần gõ trước.
+    auto *ic = event.inputContext();
+    auto *processor = ic->propertyFor(&factory_);
+    processor->reset();
+}
 
-            case engine::Action::UPDATE_PREEDIT:
-                showPreedit(ic, result.text);
-                keyEvent.filterAndAccept();
-                return;
+void VnKeyEngine::reset(const InputMethodEntry &, InputContextEvent &event) {
+    auto *ic = event.inputContext();
+    auto *processor = ic->propertyFor(&factory_);
+    processor->reset();
+    ic->inputPanel().reset();
+    ic->updatePreedit();
+}
 
-            case engine::Action::COMMIT:
-                ic->commitString(result.text);
-                clearPreedit(ic);
-                // Với phím space/enter: đã commit từ, giờ để phím trắng đó tới app
-                // (không filter) -> "nặng" + dấu cách. Các phím khác thì nuốt luôn.
-                if (ki.special == engine::KeyInput::Special::SPACE ||
-                    ki.special == engine::KeyInput::Special::ENTER) {
-                    return; // unfiltered
-                }
-                keyEvent.filterAndAccept();
-                return;
-
-            case engine::Action::COMMIT_WITH_BACKSPACE: {
-                // Xóa `backspaces` ký tự đã commit trước đó (fake-backspace) rồi
-                // commit chuỗi mới. Dùng khi không đi theo mô hình preedit.
-                for (int i = 0; i < result.backspaces; ++i) {
-                    ic->forwardKey(Key(FcitxKey_BackSpace), false);
-                    ic->forwardKey(Key(FcitxKey_BackSpace), true);
-                }
-                ic->commitString(result.text);
-                clearPreedit(ic);
-                keyEvent.filterAndAccept();
-                return;
-            }
-        }
+void VnKeyEngine::keyEvent(const InputMethodEntry &, KeyEvent &keyEvent) {
+    if (keyEvent.isRelease()) {
+        return;
     }
 
-    void VnKeyEngine::showPreedit(InputContext *ic, const std::string &text) {
-        Text preedit;
-        preedit.append(text, TextFormatFlag::Underline);
-        preedit.setCursor(static_cast<int>(text.size()));
+    auto *ic = keyEvent.inputContext();
+    auto *processor = ic->propertyFor(&factory_);
 
-        // setClientPreedit = hiển thị ngay tại con trỏ (on-the-spot) nếu app hỗ trợ.
-        if (ic->capabilityFlags().test(CapabilityFlag::Preedit)) {
-            ic->inputPanel().setClientPreedit(preedit);
-        }
-        ic->inputPanel().setPreedit(preedit);
-        ic->updatePreedit();
-        ic->updateUserInterface(UserInterfaceComponent::InputPanel);
+    engine::KeyEvent coreEvent = toCoreKeyEvent(keyEvent.key());
+
+    // Nếu processor không quan tâm phím này (vd phím mũi tên, F1..),
+    // để Fcitx5 forward cho ứng dụng xử lý bình thường.
+    engine::ProcessResult result = processor->process(coreEvent);
+    if (!result.consumed) {
+        return;
     }
 
-    void VnKeyEngine::clearPreedit(InputContext *ic) {
-        ic->inputPanel().reset();
-        ic->updatePreedit();
-        ic->updateUserInterface(UserInterfaceComponent::InputPanel);
-    }
+    keyEvent.filterAndAccept();
 
-    void VnKeyEngine::reset(const InputMethodEntry & /*entry*/, InputContextEvent &event) {
-        InputContext *ic = event.inputContext();
-        ic->propertyFor(&factory_)->processor().reset();
-        clearPreedit(ic);
-    }
-} // namespace fcitx
+    // Cập nhật preedit (chữ đang gõ dở, chưa commit)
+    Text preeditText;
+    preeditText.append(result.preedit);
+    preeditText.setCursor(result.preedit.size());
+    ic->inputPanel().setPreedit(preeditText);
+    ic->updatePreedit();
 
-FCITX_ADDON_FACTORY(fcitx::VnKeyEngineFactory);
+    // Nếu processor báo có ký tự cần commit ra ứng dụng (vd sau khi gõ
+    // xong 1 âm tiết và gặp dấu cách/dấu câu), commit nó
+    if (!result.commitText.empty()) {
+        ic->commitString(result.commitText);
+    }
+}
+
+FCITX_ADDON_FACTORY(VnKeyEngineFactory);
