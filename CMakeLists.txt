@@ -10,11 +10,11 @@ option(BUILD_ADDON "Build fcitx5 addon (tat de build rieng core)" ON)
 
 add_subdirectory(core)
 
-#if (BUILD_ADDON)
-#    find_package(Fcitx5Core REQUIRED)
-#    find_package(Fcitx5Utils REQUIRED)
-#    add_subdirectory(addon)
-#endif ()
+if (BUILD_ADDON)
+    find_package(Fcitx5Core REQUIRED)
+    find_package(Fcitx5Utils REQUIRED)
+    add_subdirectory(addon)
+endif ()
 
 if (ENABLE_TESTS)
     enable_testing()
