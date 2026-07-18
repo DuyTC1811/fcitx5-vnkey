@@ -1,6 +1,5 @@
 # addon/CMakeLists.txt
 # Chỉ build khi BUILD_ADDON=ON (đã guard từ root CMakeLists).
-
 find_package(Fcitx5Core REQUIRED)
 find_package(Fcitx5Utils REQUIRED)
 
@@ -21,13 +20,9 @@ target_link_libraries(vnkey
 
 target_compile_features(vnkey PRIVATE cxx_std_23)
 
-# Cho phép include "engine.hpp", "keyinput.hpp"... từ core/include.
-# (Nếu core CMake đã target_include_directories(engine PUBLIC .../include) thì
-#  dòng này thừa nhưng vô hại.)
 target_include_directories(vnkey PRIVATE "${CMAKE_SOURCE_DIR}/core/include")
 
 # ---- Install ----
-
 # 1. Plugin .so -> /usr/lib/<arch>/fcitx5/
 install(TARGETS vnkey
         DESTINATION "${FCITX_INSTALL_ADDONDIR}")
@@ -38,6 +33,4 @@ install(FILES vnkey-addon.conf
         DESTINATION "${FCITX_INSTALL_PKGDATADIR}/addon")
 
 # 3. Mô tả input method -> /usr/share/fcitx5/inputmethod/vnkey.conf
-install(FILES vnkey-im.conf
-        RENAME vnkey.conf
-        DESTINATION "${FCITX_INSTALL_PKGDATADIR}/inputmethod")
+install(FILES vnkey.conf DESTINATION "${FCITX_INSTALL_PKGDATADIR}/inputmethod")
