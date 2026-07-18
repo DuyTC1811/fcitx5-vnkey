@@ -74,24 +74,21 @@ void test_engine_basics() {
     }
     // TEST 6: Space — commit buffer
 
+    // ---- 1. SPACE: commit kem khoang trang ----
     {
         InputProcessor p(makeTelex());
-
-        // Gõ "abc"
         for (char c: {'a', 'b', 'c'}) {
             KeyInput k;
             k.ch = static_cast<char32_t>(c);
             p.process(k);
         }
-
-        // Space
         KeyInput sp;
         sp.special = KeyInput::Special::SPACE;
         auto r = p.process(sp);
-
         CHECK_EQ_INT(r.action, Action::COMMIT, "Space: action = COMMIT");
-        CHECK_EQ(r.text, "abc", "Space: commit text = 'abc'");
-        CHECK_EQ(p.preedit(), "", "Space: buffer reset về rỗng");
+        CHECK_EQ(r.text, "abc ", "Space: commit text = 'abc ' (kem khoang trang)");
+        CHECK_EQ_INT(r.forwardKey, false, "Space: khong forward phim (space da nam trong text)");
+        CHECK_EQ(p.preedit(), "", "Space: buffer reset ve rong");
     }
 
     // TEST 7: Space trên buffer rỗng — passthrough

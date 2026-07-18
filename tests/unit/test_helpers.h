@@ -114,22 +114,15 @@ inline Result feedSpecial(InputProcessor &p, const KeyInput::Special sp) {
 // FEED SENTENCE — go ca cau, gap ' ' thi gia lap phim SPACE that
 // Tra ve: chuoi da commit (kem dau cach) + phan preedit con dang do
 // ----------------------------------------------------------------------------
-inline std::string feedSentence(InputProcessor& p, const std::string_view keys) {
+inline std::string feedSentence(InputProcessor &p, const std::string_view keys) {
     std::string out;
-    for (const char c : keys) {
-        if (c == ' ') {
-            KeyInput sp;
-            sp.special = KeyInput::Special::SPACE;
-            const auto r = p.process(sp);
-            if (r.action == Action::COMMIT)
-                out += r.text;              // tu vua duoc chot
-            out += ' ';                     // dau cach do addon forward (xem ghi chu)
-        } else {
-            KeyInput k;
-            k.ch = static_cast<char32_t>(c);
-            p.process(k);
-        }
+    for (const char c: keys) {
+        engine::KeyInput k;
+        if (c == ' ') k.special = KeyInput::Special::SPACE;
+        else k.ch = static_cast<char32_t>(c);
+        auto r = p.process(k);
+        if (r.action == engine::Action::COMMIT) out += r.text;
+        // KHONG tu chen " " — space da nam trong r.text roi
     }
-    out += p.preedit();                     // tu cuoi chua nhan Space
-    return out;
+    return out + p.preedit(); // phan con dang go do
 }
