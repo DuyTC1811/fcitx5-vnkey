@@ -4,32 +4,33 @@
 #include <fcitx/instance.h>
 #include <fcitx/addonfactory.h>
 #include <fcitx/addonmanager.h>
+#include <fcitx/inputcontextproperty.h>
 
-#include "input_method.hpp"  // lớp core của bạn, KHÔNG phụ thuộc Fcitx5
+#include "engine.hpp"  // core: engine::InputProcessor, engine::Result, makeTelex()
+
+// State theo tung InputContext (moi o nhap lieu / cua so co buffer rieng).
+// InputProcessor la lop core thuan, khong the ke thua lop cua Fcitx5,
+// nen ta boc no vao mot InputContextProperty de Fcitx5 quan ly vong doi.
+class VnKeyState final : public fcitx::InputContextProperty {
+public:
+    VnKeyState() : processor_(engine::makeTelex()) {}
+    engine::InputProcessor processor_;
+};
 
 class VnKeyEngine final : public fcitx::InputMethodEngine {
 public:
     explicit VnKeyEngine(fcitx::Instance *instance);
 
-    // Được gọi mỗi khi user gõ 1 phím trong khi engine này đang active
     void keyEvent(const fcitx::InputMethodEntry &entry,
                   fcitx::KeyEvent &keyEvent) override;
-
-    // Được gọi khi chuyển sang input method khác / mất focus / v.v.
     void reset(const fcitx::InputMethodEntry &entry,
                fcitx::InputContextEvent &event) override;
-
-    // Được gọi khi user click chọn engine này lần đầu / activate lại context
     void activate(const fcitx::InputMethodEntry &entry,
                   fcitx::InputContextEvent &event) override;
 
 private:
     fcitx::Instance *instance_;
-
-    // Mỗi InputContext (mỗi cửa sổ/ô nhập liệu) cần 1 processor riêng,
-    // vì trạng thái buffer_ là per-context, không phải global.
-    // Dùng property để Fcitx5 tự quản lý vòng đời theo InputContext.
-    fcitx::FactoryFor<engine::InputProcessor> factory_;
+    fcitx::FactoryFor<VnKeyState> factory_;
 };
 
 class VnKeyEngineFactory final : public fcitx::AddonFactory {

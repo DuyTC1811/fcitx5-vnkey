@@ -1,59 +1,48 @@
 #include "vnkey.h"
+#include "keymap.h"   // fcitx::toKeyInput(const Key&) -> engine::KeyInput
 
 #include <fcitx/inputcontext.h>
 #include <fcitx/inputpanel.h>
-#include <fcitx-utils/keysymgen.h>
-
-#include "input_method.hpp"
-#include "keyinput.hpp"   // struct nhẹ của core, độc lập Fcitx5
+#include <fcitx-utils/key.h>
 
 using namespace fcitx;
 
 namespace {
-
-// Chuyển fcitx::Key sang kiểu key event riêng của core, để core
-// không bao giờ phải include <fcitx/...>. Đây là "ranh giới" giữa
-// hai layer mà bạn đã quyết định: addon -> core, không ngược lại.
-engine::KeyEvent toCoreKeyEvent(const Key &key) {
-    engine::KeyEvent ev;
-
-    if (key.isSimple()) {
-        // phím in được (a-z, dấu câu, ...)
-        ev.kind = engine::KeyEvent::Kind::Character;
-        ev.character = static_cast<char32_t>(key.sym());
-    } else if (key.check(FcitxKey_BackSpace)) {
-        ev.kind = engine::KeyEvent::Kind::Backspace;
-    } else if (key.check(FcitxKey_Delete)) {
-        ev.kind = engine::KeyEvent::Kind::Delete;
-    } else {
-        ev.kind = engine::KeyEvent::Kind::Other;
+    // Hien thi preedit (chu dang go do). Uu tien client preedit de chu
+    // hien inline ngay trong app; app nao khong ho tro thi fallback.
+    void showPreedit(InputContext *ic, const std::string &s) {
+        Text preedit;
+        preedit.append(s);
+        preedit.setCursor(s.size());
+        if (ic->capabilityFlags().test(CapabilityFlag::Preedit)) {
+            ic->inputPanel().setClientPreedit(preedit);
+        } else {
+            ic->inputPanel().setPreedit(preedit);
+        }
+        ic->updatePreedit();
     }
 
-    return ev;
-}
-
+    void clearPreedit(InputContext *ic) {
+        ic->inputPanel().reset();
+        ic->updatePreedit();
+    }
 } // namespace
 
 VnKeyEngine::VnKeyEngine(Instance *instance)
     : instance_(instance),
-      factory_([](InputContext &) { return new engine::InputProcessor(); }) {
-    instance_->inputContextManager().registerProperty("vnkeyProcessor", &factory_);
+      factory_([](InputContext &) { return new VnKeyState(); }) {
+    instance_->inputContextManager().registerProperty("vnkeyState", &factory_);
 }
 
 void VnKeyEngine::activate(const InputMethodEntry &, InputContextEvent &event) {
-    // Reset buffer khi engine được kích hoạt cho 1 context mới,
-    // tránh dính state cũ từ lần gõ trước.
     auto *ic = event.inputContext();
-    auto *processor = ic->propertyFor(&factory_);
-    processor->reset();
+    ic->propertyFor(&factory_)->processor_.reset();
 }
 
 void VnKeyEngine::reset(const InputMethodEntry &, InputContextEvent &event) {
     auto *ic = event.inputContext();
-    auto *processor = ic->propertyFor(&factory_);
-    processor->reset();
-    ic->inputPanel().reset();
-    ic->updatePreedit();
+    ic->propertyFor(&factory_)->processor_.reset();
+    clearPreedit(ic);
 }
 
 void VnKeyEngine::keyEvent(const InputMethodEntry &, KeyEvent &keyEvent) {
@@ -62,30 +51,39 @@ void VnKeyEngine::keyEvent(const InputMethodEntry &, KeyEvent &keyEvent) {
     }
 
     auto *ic = keyEvent.inputContext();
-    auto *processor = ic->propertyFor(&factory_);
+    auto *state = ic->propertyFor(&factory_);
 
-    engine::KeyEvent coreEvent = toCoreKeyEvent(keyEvent.key());
+    // Ranh gioi addon -> core: dich phim Fcitx5 sang kieu thuan cua core.
+    engine::KeyInput ki = toKeyInput(keyEvent.key());
+    engine::Result r = state->processor_.process(ki);
 
-    // Nếu processor không quan tâm phím này (vd phím mũi tên, F1..),
-    // để Fcitx5 forward cho ứng dụng xử lý bình thường.
-    engine::ProcessResult result = processor->process(coreEvent);
-    if (!result.consumed) {
-        return;
-    }
+    switch (r.action) {
+        case engine::Action::PASS_THROUGH:
+            // Core khong xu ly phim nay -> khong accept, de Fcitx5 forward cho app.
+            return;
 
-    keyEvent.filterAndAccept();
+        case engine::Action::UPDATE_PREEDIT:
+            showPreedit(ic, r.text);
+            keyEvent.filterAndAccept();
+            return;
 
-    // Cập nhật preedit (chữ đang gõ dở, chưa commit)
-    Text preeditText;
-    preeditText.append(result.preedit);
-    preeditText.setCursor(result.preedit.size());
-    ic->inputPanel().setPreedit(preeditText);
-    ic->updatePreedit();
+        case engine::Action::COMMIT:
+            clearPreedit(ic);
+            ic->commitString(r.text);
+            keyEvent.filterAndAccept();
+            return;
 
-    // Nếu processor báo có ký tự cần commit ra ứng dụng (vd sau khi gõ
-    // xong 1 âm tiết và gặp dấu cách/dấu câu), commit nó
-    if (!result.commitText.empty()) {
-        ic->commitString(result.commitText);
+        case engine::Action::COMMIT_WITH_BACKSPACE:
+            // Gui r.backspaces phim Backspace de xoa ky tu da commit truoc do,
+            // roi commit chuoi moi (fake-backspace).
+            for (int i = 0; i < r.backspaces; ++i) {
+                ic->forwardKey(Key(FcitxKey_BackSpace), false);
+                ic->forwardKey(Key(FcitxKey_BackSpace), true);
+            }
+            clearPreedit(ic);
+            ic->commitString(r.text);
+            keyEvent.filterAndAccept();
+            return;
     }
 }
 
