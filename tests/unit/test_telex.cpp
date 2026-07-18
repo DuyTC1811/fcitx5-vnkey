@@ -131,19 +131,17 @@ void test_telex() {
         InputProcessor p(makeTelex());
         // feedSentence = noi cac r.text (COMMIT) + p.preedit() cuoi cung.
         // Tu cuoi "nam" chua commit (khong co space sau no) -> nam trong preedit.
-        CHECK_EQ(feedSentence(p, "coongj hoaf xax hooij chur nghiax vieejt nam"),
-                 "cộng hoà xã hội chủ nghĩa việt nam",
+        CHECK_EQ(feedSentence(p, "coongj hoaf xax hooij chur nghiax vieejt nam"), "cộng hoà xã hội chủ nghĩa việt nam",
                  "cau day du: cac tu commit kem space, tu cuoi con trong preedit");
     }
     {
         InputProcessor p(makeTelex());
         // Co space cuoi -> moi tu deu commit, ket qua co space ket thuc
-        CHECK_EQ(feedSentence(p, "coongj hoaf xax "),
-                 "cộng hoà xã ",
+        CHECK_EQ(feedSentence(p, "coongj hoaf xax "), "cộng hoà xã ",
                  "cau ket thuc bang space: commit het, co space cuoi");
     }
 
-        // ---- 2. SPACE khi buffer rong: passthrough ----
+    // ---- 2. SPACE khi buffer rong: passthrough ----
     {
         InputProcessor p(makeTelex());
         KeyInput sp;
@@ -155,9 +153,11 @@ void test_telex() {
     // ---- 3. Hai space lien tiep: commit roi passthrough ----
     {
         InputProcessor p(makeTelex());
-        KeyInput k; k.ch = U'a';
+        KeyInput k;
+        k.ch = U'a';
         p.process(k);
-        KeyInput sp; sp.special = KeyInput::Special::SPACE;
+        KeyInput sp;
+        sp.special = KeyInput::Special::SPACE;
         auto r1 = p.process(sp);
         CHECK_EQ(r1.text, "a ", "Space 1: commit 'a '");
         auto r2 = p.process(sp);
@@ -167,7 +167,7 @@ void test_telex() {
     // ---- 4. ENTER: commit KHONG kem newline, forwardKey = true ----
     {
         InputProcessor p(makeTelex());
-        for (char c: {'m', 'a', 's'}) {   // "mas" -> "má"
+        for (char c: {'m', 'a', 's'}) { // "mas" -> "má"
             KeyInput k;
             k.ch = static_cast<char32_t>(c);
             p.process(k);
@@ -184,7 +184,8 @@ void test_telex() {
     // ---- 5. TAB: nhu Enter ----
     {
         InputProcessor p(makeTelex());
-        KeyInput k; k.ch = U'a';
+        KeyInput k;
+        k.ch = U'a';
         p.process(k);
         KeyInput tab;
         tab.special = KeyInput::Special::TAB;
@@ -196,7 +197,8 @@ void test_telex() {
     // ---- 6. ENTER buffer rong: passthrough, khong forward flag ----
     {
         InputProcessor p(makeTelex());
-        KeyInput en; en.special = KeyInput::Special::ENTER;
+        KeyInput en;
+        en.special = KeyInput::Special::ENTER;
         auto r = p.process(en);
         CHECK_EQ_INT(r.action, Action::PASS_THROUGH, "Enter buffer rong: PASS_THROUGH");
     }
@@ -221,14 +223,14 @@ void test_telex() {
     // ---- 9. Space ngay sau commit bang space: chi ra 1 khoang trang moi lan ----
     {
         InputProcessor p(makeTelex());
-        KeyInput k; k.ch = U'a';
-        KeyInput sp; sp.special = KeyInput::Special::SPACE;
+        KeyInput k;
+        k.ch = U'a';
+        KeyInput sp;
+        sp.special = KeyInput::Special::SPACE;
         p.process(k);
         auto r1 = p.process(sp);
         p.process(k);
         auto r2 = p.process(sp);
         CHECK_EQ(r1.text + r2.text, "a a ", "2 tu lien tiep: 'a a ' dung 2 space");
     }
-
-
 }

@@ -1,6 +1,6 @@
-#include "test_helpers.h"
 #include "../../core/include/engine.hpp"
 #include "../../core/include/input_method.hpp"
+#include "test_helpers.h"
 
 void test_engine_basics() {
     using namespace engine;
@@ -217,6 +217,4 @@ void test_engine_basics() {
 
         CHECK_EQ(p.preedit(), "ab", "Backspace 2 lần: buffer = 'ab'");
     }
-
 }
-

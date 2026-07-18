@@ -1,12 +1,12 @@
 #pragma once
 
-#include <fcitx/inputmethodengine.h>
-#include <fcitx/instance.h>
 #include <fcitx/addonfactory.h>
 #include <fcitx/addonmanager.h>
 #include <fcitx/inputcontextproperty.h>
+#include <fcitx/inputmethodengine.h>
+#include <fcitx/instance.h>
 
-#include "engine.hpp"  // core: engine::InputProcessor, engine::Result, makeTelex()
+#include "engine.hpp" // core: engine::InputProcessor, engine::Result, makeTelex()
 
 // State theo tung InputContext (moi o nhap lieu / cua so co buffer rieng).
 // InputProcessor la lop core thuan, khong the ke thua lop cua Fcitx5,
@@ -21,12 +21,9 @@ class VnKeyEngine final : public fcitx::InputMethodEngine {
 public:
     explicit VnKeyEngine(fcitx::Instance *instance);
 
-    void keyEvent(const fcitx::InputMethodEntry &entry,
-                  fcitx::KeyEvent &keyEvent) override;
-    void reset(const fcitx::InputMethodEntry &entry,
-               fcitx::InputContextEvent &event) override;
-    void activate(const fcitx::InputMethodEntry &entry,
-                  fcitx::InputContextEvent &event) override;
+    void keyEvent(const fcitx::InputMethodEntry& entry, fcitx::KeyEvent& keyEvent) override;
+    void reset(const fcitx::InputMethodEntry& entry, fcitx::InputContextEvent& event) override;
+    void activate(const fcitx::InputMethodEntry& entry, fcitx::InputContextEvent& event) override;
 
 private:
     fcitx::Instance *instance_;

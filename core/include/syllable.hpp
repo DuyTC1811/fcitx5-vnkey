@@ -21,6 +21,6 @@ namespace engine {
         [[nodiscard]] std::u32string compose(bool newToneStyle) const;
 
         // Vi tri nguyen am nhan dau thanh
-        int tonePosition(bool newToneStyle) const;
+        [[nodiscard]] int tonePosition(bool newToneStyle) const;
     };
-} // END engine
+} // namespace engine

@@ -38,7 +38,7 @@ namespace engine {
         [[nodiscard]] std::string preedit() const; // buffer hien tai duoi dang UTF-8
 
     private:
-        Result show() const; // helper: compose + tra UPDATE_PREEDIT
+        [[nodiscard]] Result show() const; // helper: compose + tra UPDATE_PREEDIT
         std::unique_ptr<InputMethodDef> method_;
         Config cfg_;
         std::u32string raw_; // phim tho nguoi dung da go: "mas"
@@ -47,4 +47,4 @@ namespace engine {
 
     // Tien ich chuyen doi (implement trong engine.cpp)
     std::string toUtf8(std::u32string_view s);
-} // END engine
+} // namespace engine

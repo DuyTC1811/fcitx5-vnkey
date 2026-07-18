@@ -10,7 +10,7 @@
 #include "keyinput.hpp"
 
 namespace fcitx {
-    engine::KeyInput toKeyInput(const Key &key);
+    engine::KeyInput toKeyInput(const Key& key);
 } // namespace fcitx
 
-#endif  // _FCITX5_VNKEY_KEYMAP_H_
+#endif // _FCITX5_VNKEY_KEYMAP_H_

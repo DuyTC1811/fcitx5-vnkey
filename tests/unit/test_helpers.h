@@ -8,43 +8,41 @@ inline int g_passes = 0;
 using namespace engine;
 
 // MACRO ASSERT
-#define CHECK_EQ(actual, expected, desc)                                    \
-    do {                                                                    \
-        auto a = (actual);                                                  \
-        auto e = (expected);                                                \
-        if (a != e) {                                                       \
-            ++g_failures;                                                   \
-            std::printf("\n");                                              \
-            std::printf("  ❌ FAIL: %s\n", desc);                            \
-            std::printf("     File: %s:%d\n", __FILE__, __LINE__);          \
-            std::printf("     Expected: \"%s\"\n",                          \
-                        std::string(e).c_str());                            \
-            std::printf("     Actual:   \"%s\"\n",                          \
-                        std::string(a).c_str());                            \
-            std::printf("\n");                                              \
-        } else {                                                            \
-            ++g_passes;                                                     \
-            std::printf("  ✓ %s\n", desc);                                  \
-        }                                                                   \
+#define CHECK_EQ(actual, expected, desc)                                                                               \
+    do {                                                                                                               \
+        auto a = (actual);                                                                                             \
+        auto e = (expected);                                                                                           \
+        if (a != e) {                                                                                                  \
+            ++g_failures;                                                                                              \
+            std::printf("\n");                                                                                         \
+            std::printf("  ❌ FAIL: %s\n", desc);                                                                       \
+            std::printf("     File: %s:%d\n", __FILE__, __LINE__);                                                     \
+            std::printf("     Expected: \"%s\"\n", std::string(e).c_str());                                            \
+            std::printf("     Actual:   \"%s\"\n", std::string(a).c_str());                                            \
+            std::printf("\n");                                                                                         \
+        } else {                                                                                                       \
+            ++g_passes;                                                                                                \
+            std::printf("  ✓ %s\n", desc);                                                                             \
+        }                                                                                                              \
     } while (0)
 
 // Variant cho enum/int — so sánh số
-#define CHECK_EQ_INT(actual, expected, desc)                                \
-    do {                                                                    \
-        auto a = static_cast<int>(actual);                                  \
-        auto e = static_cast<int>(expected);                                \
-        if (a != e) {                                                       \
-            ++g_failures;                                                   \
-            std::printf("\n");                                              \
-            std::printf("  ❌ FAIL: %s\n", desc);                            \
-            std::printf("     File: %s:%d\n", __FILE__, __LINE__);          \
-            std::printf("     Expected: %d\n", e);                          \
-            std::printf("     Actual:   %d\n", a);                          \
-            std::printf("\n");                                              \
-        } else {                                                            \
-            ++g_passes;                                                     \
-            std::printf("  ✓ %s\n", desc);                                  \
-        }                                                                   \
+#define CHECK_EQ_INT(actual, expected, desc)                                                                           \
+    do {                                                                                                               \
+        auto a = static_cast<int>(actual);                                                                             \
+        auto e = static_cast<int>(expected);                                                                           \
+        if (a != e) {                                                                                                  \
+            ++g_failures;                                                                                              \
+            std::printf("\n");                                                                                         \
+            std::printf("  ❌ FAIL: %s\n", desc);                                                                      \
+            std::printf("     File: %s:%d\n", __FILE__, __LINE__);                                                     \
+            std::printf("     Expected: %d\n", e);                                                                     \
+            std::printf("     Actual:   %d\n", a);                                                                     \
+            std::printf("\n");                                                                                         \
+        } else {                                                                                                       \
+            ++g_passes;                                                                                                \
+            std::printf("  ✓ %s\n", desc);                                                                             \
+        }                                                                                                              \
     } while (0)
 
 // In tổng kết
@@ -68,7 +66,7 @@ inline void printTestSummary() {
 //   - COMMIT xoa buffer -> preedit() = "" (dung, xem feedCommit ben duoi)
 //   - preedit() LUON la trang thai that cua buffer
 //
-inline std::string feed(InputProcessor &p, const std::string_view keys) {
+inline std::string feed(InputProcessor& p, const std::string_view keys) {
     for (const char c: keys) {
         KeyInput k;
         k.ch = static_cast<char32_t>(c);
@@ -81,7 +79,7 @@ inline std::string feed(InputProcessor &p, const std::string_view keys) {
 // FEED + COMMIT — go chuoi phim roi nhan Space, tra ve chuoi da commit
 // Dung cho test "nguoi dung go xong mot tu"
 // ----------------------------------------------------------------------------
-inline std::string feedCommit(InputProcessor &p, const std::string_view keys) {
+inline std::string feedCommit(InputProcessor& p, const std::string_view keys) {
     for (const char c: keys) {
         KeyInput k;
         k.ch = static_cast<char32_t>(c);
@@ -95,7 +93,7 @@ inline std::string feedCommit(InputProcessor &p, const std::string_view keys) {
 // ----------------------------------------------------------------------------
 // FEED 1 PHIM — tra ve Result day du, dung khi can kiem tra action
 // ----------------------------------------------------------------------------
-inline Result feedKey(InputProcessor &p, char c) {
+inline Result feedKey(InputProcessor& p, char c) {
     engine::KeyInput k;
     k.ch = static_cast<char32_t>(c);
     return p.process(k);
@@ -104,7 +102,7 @@ inline Result feedKey(InputProcessor &p, char c) {
 // ----------------------------------------------------------------------------
 // FEED PHIM DAC BIET — Backspace / Delete / Escape / Space / Enter / Tab
 // ----------------------------------------------------------------------------
-inline Result feedSpecial(InputProcessor &p, const KeyInput::Special sp) {
+inline Result feedSpecial(InputProcessor& p, const KeyInput::Special sp) {
     KeyInput k;
     k.special = sp;
     return p.process(k);
@@ -114,14 +112,19 @@ inline Result feedSpecial(InputProcessor &p, const KeyInput::Special sp) {
 // FEED SENTENCE — go ca cau, gap ' ' thi gia lap phim SPACE that
 // Tra ve: chuoi da commit (kem dau cach) + phan preedit con dang do
 // ----------------------------------------------------------------------------
-inline std::string feedSentence(InputProcessor &p, const std::string_view keys) {
+inline std::string feedSentence(InputProcessor& p, const std::string_view keys) {
     std::string out;
     for (const char c: keys) {
         engine::KeyInput k;
-        if (c == ' ') k.special = KeyInput::Special::SPACE;
-        else k.ch = static_cast<char32_t>(c);
+        if (c == ' ') {
+            k.special = KeyInput::Special::SPACE;
+        } else {
+            k.ch = static_cast<char32_t>(c);
+        }
         auto r = p.process(k);
-        if (r.action == engine::Action::COMMIT) out += r.text;
+        if (r.action == Action::COMMIT) {
+            out += r.text;
+        }
         // KHONG tu chen " " — space da nam trong r.text roi
     }
     return out + p.preedit(); // phan con dang go do

@@ -4,7 +4,7 @@
 #include <fcitx-utils/keysym.h>
 
 namespace fcitx {
-    engine::KeyInput toKeyInput(const Key &key) {
+    engine::KeyInput toKeyInput(const Key& key) {
         using Special = engine::KeyInput::Special;
 
         engine::KeyInput out;
@@ -12,8 +12,7 @@ namespace fcitx {
         const KeyStates states = key.states();
         out.shift = states.test(KeyState::Shift);
         // Bất kỳ Ctrl/Alt/Super nào -> core sẽ coi là passthrough.
-        out.ctrlOrAlt = states.test(KeyState::Ctrl) || states.test(KeyState::Alt) ||
-                        states.test(KeyState::Super);
+        out.ctrlOrAlt = states.test(KeyState::Ctrl) || states.test(KeyState::Alt) || states.test(KeyState::Super);
 
         switch (key.sym()) {
             case FcitxKey_BackSpace:
