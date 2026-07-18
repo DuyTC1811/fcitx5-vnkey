@@ -87,7 +87,9 @@ namespace engine {
     Result InputProcessor::process(const KeyInput key) {
         if (key.ctrlOrAlt) {
             reset();
-            return {Action::PASS_THROUGH, ""};
+            return {
+                Action::PASS_THROUGH, ""
+            };
         }
 
         using S = KeyInput::Special;
@@ -96,10 +98,16 @@ namespace engine {
                 if (raw_.empty()) return {Action::PASS_THROUGH, ""};
                 // Xoa tren CAU TRUC am tiet, khong xoa tren chuoi compose
                 raw_.pop_back();
-                if (!syl_.coda.empty()) syl_.coda.pop_back();
-                else if (!syl_.vowel.empty()) syl_.vowel.pop_back();
-                else if (!syl_.initial.empty()) syl_.initial.pop_back();
-                if (syl_.vowel.empty()) syl_.tone = 0; // het nguyen am -> mat thanh
+                if (!syl_.coda.empty()) {
+                    syl_.coda.pop_back();
+                } else if (!syl_.vowel.empty()) {
+                    syl_.vowel.pop_back();
+                } else if (!syl_.initial.empty()) {
+                    syl_.initial.pop_back();
+                }
+                if (syl_.vowel.empty()) {
+                    syl_.tone = 0; // het nguyen am -> mat thanh
+                }
                 return show();
             }
 
@@ -144,9 +152,10 @@ namespace engine {
 
             case S::ESCAPE: {
                 // Huy che bien: commit lai dung chuoi phim tho da go ("mas" thay vi "má")
-                if (raw_.empty()) return {
-                    Action::PASS_THROUGH, ""
-                };
+                if (raw_.empty())
+                    return {
+                        Action::PASS_THROUGH, ""
+                    };
                 Result r{
                     Action::COMMIT, toUtf8(raw_)
                 };
@@ -158,9 +167,10 @@ namespace engine {
                 break;
         }
 
-        if (key.ch == 0) return {
-            Action::PASS_THROUGH, ""
-        };
+        if (key.ch == 0)
+            return {
+                Action::PASS_THROUGH, ""
+            };
 
         // ---- Hoi kieu go: phim nay co phai lenh bien doi khong ----
         if (const auto tf = method_->match(syl_, key.ch)) {
@@ -183,8 +193,8 @@ namespace engine {
                         syl_.initial = U"đ";
                     } else {
                         const auto apply = (tf->value == MARK_CIRCUMFLEX)
-                                         ? applyCircumflex
-                                         : applyHorn;
+                                               ? applyCircumflex
+                                               : applyHorn;
                         // Ap dung vao nguyen am phu hop CUOI CUNG (dung cho "uo" -> "uơ")
                         for (auto it = syl_.vowel.rbegin(); it != syl_.vowel.rend(); ++it)
                             if (const char32_t m = apply(*it); m != *it) {
@@ -200,7 +210,9 @@ namespace engine {
                         syl_.initial = U"d";
                         syl_.coda += key.ch; // "đ" + d -> "dd"
                     } else {
-                        for (auto &c: syl_.vowel) c = stripMark(c);
+                        for (auto &c: syl_.vowel) {
+                            c = stripMark(c);
+                        }
                         syl_.vowel += key.ch; // "â" + a -> "aa"
                     }
                     return show();
