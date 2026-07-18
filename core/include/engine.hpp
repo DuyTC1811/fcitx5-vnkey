@@ -16,6 +16,7 @@ namespace engine {
         Action action = Action::PASS_THROUGH;
         std::string text; // UTF-8
         int backspaces = 0;
+        bool forwardKey = false; // commit xong VAN tra phim goc cho app (Enter/Tab)
     };
 
     struct Config {

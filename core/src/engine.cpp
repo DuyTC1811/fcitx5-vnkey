@@ -1,6 +1,7 @@
 #include "engine.hpp"
 
 #include <memory>
+#include <ranges>
 #include <string>
 
 #include "input_method.hpp"
@@ -111,11 +112,32 @@ namespace engine {
                 return show();
             }
 
-            case S::SPACE:
+            case S::SPACE: {
+                if (raw_.empty()) {
+                    return {
+                        Action::PASS_THROUGH, ""
+                    };
+                }
+                // Commit kem luon khoang trang: "hoà" + space -> "hoà "
+                Result r{
+                    Action::COMMIT, preedit() + " "
+                };
+                reset();
+                return r;
+            }
             case S::ENTER:
             case S::TAB: {
-                if (raw_.empty()) return {Action::PASS_THROUGH, ""};
-                Result r{Action::COMMIT, preedit()};
+                if (raw_.empty()) {
+                    return {
+                        Action::PASS_THROUGH, ""
+                    };
+                }
+                // Commit chu, roi van chuyen phim goc cho app
+                // (Enter co the la "gui tin nhan", Tab la nhay o — khong duoc nuot)
+                Result r{
+                    Action::COMMIT, preedit()
+                };
+                r.forwardKey = true;
                 reset();
                 return r;
             }

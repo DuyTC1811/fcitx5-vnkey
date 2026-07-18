@@ -70,6 +70,10 @@ void VnKeyEngine::keyEvent(const InputMethodEntry &, KeyEvent &keyEvent) {
         case engine::Action::COMMIT:
             clearPreedit(ic);
             ic->commitString(r.text);
+            if (r.forwardKey) {
+                // KHONG filterAndAccept -> Fcitx5 forward phim (Enter/Tab) cho app
+                return;
+            }
             keyEvent.filterAndAccept();
             return;
 
