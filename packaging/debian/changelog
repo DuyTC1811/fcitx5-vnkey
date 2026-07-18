@@ -1,0 +1,9 @@
+fcitx5-vnkey (0.0.1) unstable; urgency=medium
+
+  * Initial release.
+  * Telex input method with full NFC precomposed tone output.
+  * Standalone C++23 engine core (libvietcore) with unit test suite.
+  * Fcitx5 addon layer: preedit, per-context state, commit-with-space,
+    Enter/Tab key forwarding.
+
+ -- Duy Tran <duytran.81811@gmail.com>  Sat, 18 Jul 2026 10:00:00 +0700

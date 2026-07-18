@@ -1,0 +1,27 @@
+Source: fcitx5-vnkey
+Section: utils
+Priority: optional
+Maintainer: Duy Tran <duytran.81811@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               cmake,
+               g++,
+               libfcitx5core-dev,
+               libfcitx5config-dev,
+               libfcitx5utils-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/duytran/fcitx5-vnkey
+Rules-Requires-Root: no
+
+Package: fcitx5-vnkey
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         fcitx5
+Description: Vietnamese input method (Telex) for Fcitx5
+ fcitx5-vnkey is a Vietnamese input method engine for the Fcitx5
+ input method framework. It supports the Telex typing method with
+ full NFC precomposed Unicode output.
+ .
+ The engine core is a standalone C++23 library with no Fcitx5
+ dependency, making it fully unit-testable, with a thin Fcitx5
+ addon layer on top.
