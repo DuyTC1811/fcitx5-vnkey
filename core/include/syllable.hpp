@@ -11,9 +11,6 @@ namespace engine {
         std::u32string coda; // phu am cuoi: n, ng, c, t...
         int tone = 0; // 0=ngang 1=sac 2=huyen 3=hoi 4=nga 5=nang
 
-        // Phan tich buffer hien tai thanh am tiet; nullopt neu khong hop le
-        static std::optional<Syllable> parse(std::u32string_view text);
-
         // Kiem tra cau truc am tiet co the la tieng Viet khong
         [[nodiscard]] bool valid() const;
 

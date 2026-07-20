@@ -19,20 +19,19 @@ public:
 
 class VnKeyEngine final : public fcitx::InputMethodEngine {
 public:
-    explicit VnKeyEngine(fcitx::Instance *instance);
-
+    explicit VnKeyEngine(fcitx::Instance* instance);
     void keyEvent(const fcitx::InputMethodEntry& entry, fcitx::KeyEvent& keyEvent) override;
     void reset(const fcitx::InputMethodEntry& entry, fcitx::InputContextEvent& event) override;
     void activate(const fcitx::InputMethodEntry& entry, fcitx::InputContextEvent& event) override;
 
 private:
-    fcitx::Instance *instance_;
+    fcitx::Instance* instance_;
     fcitx::FactoryFor<VnKeyState> factory_;
 };
 
 class VnKeyEngineFactory final : public fcitx::AddonFactory {
 public:
-    fcitx::AddonInstance *create(fcitx::AddonManager *manager) override {
+    fcitx::AddonInstance* create(fcitx::AddonManager* manager) override {
         return new VnKeyEngine(manager->instance());
     }
 };

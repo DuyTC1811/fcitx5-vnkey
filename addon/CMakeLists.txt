@@ -6,7 +6,9 @@ find_package(Fcitx5Utils REQUIRED)
 # Thư viện addon. MODULE = plugin được dlopen lúc chạy, đúng cách Fcitx5 nạp addon.
 add_library(vnkey MODULE
         vnkey.cpp
+        vnkey.h
         keymap.cpp
+        keymap.h
 )
 
 # Ép tên output thành "libvnkey.so" khớp với Library=libvnkey trong .conf.

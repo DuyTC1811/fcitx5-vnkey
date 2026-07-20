@@ -13,3 +13,8 @@ test: build
 	ctest --test-dir build --output-on-failure
 
 rebuild: clean build test
+#mkdir -p build && cd build
+#cmake .. -DCMAKE_BUILD_TYPE=Release
+#make -j$(nproc)
+#fcitx5 -rd
+#fcitx5-configtool
