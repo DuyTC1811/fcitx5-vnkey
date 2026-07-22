@@ -39,6 +39,7 @@ namespace engine {
 
     private:
         [[nodiscard]] Result show() const; // helper: compose + tra UPDATE_PREEDIT
+        void feedChar(char32_t orig); // xu ly 1 phim ky tu: transform hoac append
         std::unique_ptr<InputMethodDef> method_;
         Config cfg_;
         std::u32string raw_; // phim tho nguoi dung da go: "mas"

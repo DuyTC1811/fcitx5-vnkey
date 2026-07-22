@@ -14,7 +14,7 @@ test: build
 
 rebuild: clean build test
 #mkdir -p build && cd build
-#cmake .. -DCMAKE_BUILD_TYPE=Release
-#make -j$(nproc)
+#cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+#sudo make install
 #fcitx5 -rd
 #fcitx5-configtool

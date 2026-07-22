@@ -14,7 +14,7 @@ namespace engine {
 
         class Telex final : public InputMethodDef {
         public:
-            [[nodiscard]] const char *name() const override {
+            [[nodiscard]] const char* name() const override {
                 return "telex";
             }
 
@@ -71,18 +71,28 @@ namespace engine {
                         }
                         break;
 
-                    case U'w': // aw -> ă, ow -> ơ, uw -> ư
+                    case U'w': { // aw -> ă, ow -> ơ, uw -> ư; go lap -> huy
+                        const bool hasHorn =
+                                contains(cur.vowel, U'ă') || contains(cur.vowel, U'ơ') || contains(cur.vowel, U'ư');
+
+                        if (hasHorn) {
+                            // Ngoai le: "ưo" + w -> hoan thien cap "ươ" (dduwowcj -> được)
+                            for (size_t i = 0; i + 1 < cur.vowel.size(); ++i) {
+                                if (cur.vowel[i] == U'ư' && cur.vowel[i + 1] == U'o') {
+                                    return Transform{Transform::Kind::MARK, MARK_HORN};
+                                }
+                            }
+                            // Con lai: da horn roi ma go them w la huy ("ưa"+w, "ươ"+w)
+                            return Transform{Transform::Kind::CANCEL_MARK, MARK_HORN};
+                        }
+
                         for (const char32_t it: std::views::reverse(cur.vowel)) {
                             if (it == U'a' || it == U'o' || it == U'u') {
                                 return Transform{Transform::Kind::MARK, MARK_HORN};
                             }
                         }
-
-                        // Het ung vien ma da co dau horn -> go lap la huy
-                        if (contains(cur.vowel, U'ă') || contains(cur.vowel, U'ơ') || contains(cur.vowel, U'ư')) {
-                            return Transform{Transform::Kind::CANCEL_MARK, MARK_HORN};
-                        }
                         break;
+                    }
 
                     case U'd': // dd -> đ (dau chu tren PHU AM DAU, khong phai vowel)
                         if (cur.initial == U"đ") {

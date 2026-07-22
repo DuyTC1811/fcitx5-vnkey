@@ -4,6 +4,7 @@
 #include <ranges>
 #include <string>
 
+#include "chars.hpp"
 #include "input_method.hpp"
 
 namespace engine {
@@ -74,6 +75,28 @@ namespace engine {
                     return c;
             }
         }
+
+        // Ap dau chu vao vowel (luon lowercase)
+        void applyMarkToVowel(std::u32string& vowel, const int mark, const std::u32string& initial) {
+            if (mark == MARK_HORN && initial != U"qu" && initial != U"q") {
+                // Cap "uo" -> "ươ": horn ca doi (huowng -> hương, nguowif -> người)
+                // Tru "qu": u thuoc phu am dau, chi horn o ("quowr" -> "quở")
+                for (size_t i = 0; i + 1 < vowel.size(); ++i) {
+                    if (vowel[i] == U'u' && vowel[i + 1] == U'o') {
+                        vowel[i] = U'ư';
+                        vowel[i + 1] = U'ơ';
+                        return;
+                    }
+                }
+            }
+            const auto apply = mark == MARK_CIRCUMFLEX ? applyCircumflex : applyHorn;
+            for (char32_t& it: std::views::reverse(vowel)) {
+                if (const char32_t m = apply(it); m != it) {
+                    it = m;
+                    break;
+                }
+            }
+        }
     } // namespace
 
     InputProcessor::InputProcessor(std::unique_ptr<InputMethodDef> method, const Config cfg) :
@@ -93,11 +116,86 @@ namespace engine {
     Result InputProcessor::show() const {
         return {Action::UPDATE_PREEDIT, preedit()};
     }
+    void InputProcessor::feedChar(const char32_t orig) {
+        const char32_t low = toLowerVi(orig);
+        const bool upper = low != orig;
+        raw_ += orig; // giu phim goc cho ESCAPE va replay
+
+        // syl_ luon lowercase -> match truc tiep, telex khong can biet ve case
+        if (const auto tf = method_->match(syl_, low)) {
+            switch (tf->kind) {
+                case Transform::Kind::TONE:
+                    syl_.tone = tf->value;
+                    return;
+
+                case Transform::Kind::CANCEL_TONE:
+                    syl_.tone = 0;
+                    syl_.pushCoda(low, upper); // "más" + s -> "mas"
+                    return;
+
+                case Transform::Kind::MARK:
+                    if (tf->value == MARK_DSTROKE) {
+                        syl_.initial = U"đ"; // cung do dai -> co case giu nguyen
+                    } else {
+                        applyMarkToVowel(syl_.vowel, tf->value, syl_.initial);
+                    }
+                    return;
+
+                case Transform::Kind::CANCEL_MARK:
+                    if (tf->value == MARK_DSTROKE) {
+                        syl_.initial = U"d";
+                        syl_.pushCoda(low, upper); // "đ" + d -> "dd"
+                    } else {
+                        for (auto& c: syl_.vowel) {
+                            c = stripMark(c);
+                        }
+                        syl_.pushVowel(low, upper); // "â" + a -> "aa"
+                    }
+                    return;
+
+                case Transform::Kind::NONE:
+                    break;
+            }
+        }
+
+        // ---- Phim thuong: phan loai theo lowercase ----
+        switch (low) {
+            case U'a':
+            case U'e':
+            case U'i':
+            case U'o':
+            case U'u':
+            case U'y':
+                if (syl_.coda.empty()) {
+                    syl_.pushVowel(low, upper);
+                } else {
+                    syl_.pushCoda(low, upper);
+                }
+                break;
+            default:
+                if (syl_.vowel.empty()) {
+                    syl_.pushInitial(low, upper);
+                } else {
+                    syl_.pushCoda(low, upper);
+                }
+                break;
+        }
+    }
 
     Result InputProcessor::process(const KeyInput key) {
-        if (key.ctrlOrAlt) {
+        // Helper: chot chu dang go + van chuyen phim goc cho app
+        const auto commitAndForward = [this] {
+            Result r{Action::COMMIT, preedit()};
+            r.forwardKey = true;
             reset();
-            return {Action::PASS_THROUGH, ""};
+            return r;
+        };
+
+        if (key.ctrlOrAlt) {
+            if (raw_.empty()) {
+                return {Action::PASS_THROUGH, ""};
+            }
+            return commitAndForward(); // Ctrl+S giua chung: chot chu, app van nhan Ctrl+S
         }
 
         using S = KeyInput::Special;
@@ -106,26 +204,21 @@ namespace engine {
                 if (raw_.empty()) {
                     return {Action::PASS_THROUGH, ""};
                 }
-                // Xoa tren CAU TRUC am tiet, khong xoa tren chuoi compose
-                raw_.pop_back();
-                if (!syl_.coda.empty()) {
-                    syl_.coda.pop_back();
-                } else if (!syl_.vowel.empty()) {
-                    syl_.vowel.pop_back();
-                } else if (!syl_.initial.empty()) {
-                    syl_.initial.pop_back();
-                }
-                if (syl_.vowel.empty()) {
-                    syl_.tone = 0; // het nguyen am -> mat thanh
+                // Replay: bo phim cuoi, dung lai syl_ tu dau — raw_/syl_ khong bao gio lech
+                const std::u32string keys(raw_.begin(), raw_.end() - 1);
+                reset();
+                for (const char32_t c: keys) {
+                    feedChar(c);
                 }
                 return show();
             }
 
             case S::DELETE: {
-                if (raw_.empty() || syl_.tone == 0) {
-                    return {
-                            Action::PASS_THROUGH, "" // khong co dau -> tra phim cho app
-                    };
+                if (raw_.empty()) {
+                    return {Action::PASS_THROUGH, ""};
+                }
+                if (syl_.tone == 0) {
+                    return commitAndForward(); // khong co dau -> chot chu, app tu xoa ben phai
                 }
                 syl_.tone = 0;
                 return show();
@@ -140,6 +233,7 @@ namespace engine {
                 reset();
                 return r;
             }
+
             case S::ENTER:
             case S::TAB: {
                 if (raw_.empty()) {
@@ -147,10 +241,7 @@ namespace engine {
                 }
                 // Commit chu, roi van chuyen phim goc cho app
                 // (Enter co the la "gui tin nhan", Tab la nhay o — khong duoc nuot)
-                Result r{Action::COMMIT, preedit()};
-                r.forwardKey = true;
-                reset();
-                return r;
+                return commitAndForward();
             }
 
             case S::ESCAPE: {
@@ -167,83 +258,14 @@ namespace engine {
                 break;
         }
 
-        if (key.ch == 0) {
-            return {Action::PASS_THROUGH, ""};
-        }
-
-        // ---- Hoi kieu go: phim nay co phai lenh bien doi khong ----
-        if (const auto tf = method_->match(syl_, key.ch)) {
-            switch (tf->kind) {
-                case Transform::Kind::TONE:
-                    raw_ += key.ch;
-                    syl_.tone = tf->value;
-                    return show();
-
-                case Transform::Kind::CANCEL_TONE:
-                    // Go lap phim thanh: huy dau + tra ky tu goc ve cuoi
-                    raw_ += key.ch;
-                    syl_.tone = 0;
-                    syl_.coda += key.ch;
-                    return show();
-
-                case Transform::Kind::MARK:
-                    raw_ += key.ch;
-                    if (tf->value == MARK_DSTROKE) {
-                        syl_.initial = U"đ";
-                    } else {
-                        const auto apply = (tf->value == MARK_CIRCUMFLEX) ? applyCircumflex : applyHorn;
-                        // Ap dung vao nguyen am phu hop CUOI CUNG (dung cho "uo" -> "uơ")
-                        for (auto it = syl_.vowel.rbegin(); it != syl_.vowel.rend(); ++it) {
-                            if (const char32_t m = apply(*it); m != *it) {
-                                *it = m;
-                                break;
-                            }
-                        }
-                    }
-                    return show();
-
-                case Transform::Kind::CANCEL_MARK:
-                    raw_ += key.ch;
-                    if (tf->value == MARK_DSTROKE) {
-                        syl_.initial = U"d";
-                        syl_.coda += key.ch; // "đ" + d -> "dd"
-                    } else {
-                        for (auto& c: syl_.vowel) {
-                            c = stripMark(c);
-                        }
-                        syl_.vowel += key.ch; // "â" + a -> "aa"
-                    }
-                    return show();
-
-                case Transform::Kind::NONE:
-                    break;
+        if (key.ch == 0) { // mui ten, Home, F1... — chot chu truoc khi cursor chay di
+            if (raw_.empty()) {
+                return {Action::PASS_THROUGH, ""};
             }
+            return commitAndForward();
         }
 
-        // ---- Phim thuong: append vao CAU TRUC am tiet ----
-        raw_ += key.ch;
-        // Nguyen am hay phu am? -> quyet dinh vao vowel/initial/coda
-        switch (key.ch) {
-            case U'a':
-            case U'e':
-            case U'i':
-            case U'o':
-            case U'u':
-            case U'y':
-                if (syl_.coda.empty()) {
-                    syl_.vowel += key.ch;
-                } else {
-                    syl_.coda += key.ch; // sau phu am cuoi -> chuoi la
-                }
-                break;
-            default:
-                if (syl_.vowel.empty()) {
-                    syl_.initial += key.ch;
-                } else {
-                    syl_.coda += key.ch;
-                }
-                break;
-        }
+        feedChar(key.ch);
         return show();
     }
 } // namespace engine

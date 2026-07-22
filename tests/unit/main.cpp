@@ -9,8 +9,8 @@ int main() {
     std::printf("║          FCITX5-VNKEY TEST SUITE       ║\n");
     std::printf("╚════════════════════════════════════════╝\n");
 
-    test_engine_basics();
     test_telex();
+    test_engine_basics();
 
     printTestSummary();
     return g_failures > 0 ? 1 : 0;
