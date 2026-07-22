@@ -34,7 +34,7 @@ using namespace engine;
         if (a != e) {                                                                                                  \
             ++g_failures;                                                                                              \
             std::printf("\n");                                                                                         \
-            std::printf("  ❌ FAIL: %s\n", desc);                                                                      \
+            std::printf("  ❌ FAIL: %s\n", desc);                                                                       \
             std::printf("     File: %s:%d\n", __FILE__, __LINE__);                                                     \
             std::printf("     Expected: %d\n", e);                                                                     \
             std::printf("     Actual:   %d\n", a);                                                                     \
