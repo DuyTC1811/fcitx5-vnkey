@@ -79,12 +79,17 @@ namespace engine {
         // Ap dau chu vao vowel (luon lowercase)
         void applyMarkToVowel(std::u32string& vowel, const int mark, const std::u32string& initial) {
             if (mark == MARK_HORN && initial != U"qu" && initial != U"q") {
-                // Cap "uo" -> "ươ": horn ca doi (huowng -> hương, nguowif -> người)
-                // Tru "qu": u thuoc phu am dau, chi horn o ("quowr" -> "quở")
                 for (size_t i = 0; i + 1 < vowel.size(); ++i) {
+                    // Cap "uo" -> "ươ": horn ca doi (huowng -> hương)
                     if (vowel[i] == U'u' && vowel[i + 1] == U'o') {
                         vowel[i] = U'ư';
                         vowel[i + 1] = U'ơ';
+                        return;
+                    }
+                    // Cap "ua" -> "ưa": horn vao u, KHONG phai a (ruawr -> rửa, muaw -> mưa)
+                    // Voi q/qu thi u thuoc phu am dau, a moi nhan horn (quawng -> quăng)
+                    if (vowel[i] == U'u' && vowel[i + 1] == U'a') {
+                        vowel[i] = U'ư';
                         return;
                     }
                 }

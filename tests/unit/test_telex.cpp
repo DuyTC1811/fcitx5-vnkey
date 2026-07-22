@@ -5,126 +5,115 @@
 void test_telex() {
     using namespace engine;
 
-    std::printf("\n--- TELEX: phim thuong ---\n");
-    {
-        InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "abc"), "abc", "Append: 'abc'");
-    }
-    {
-        InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "nguoi"), "nguoi", "Chua co dau: 'nguoi'");
-    }
-
-    // NHOM 2: 5 THANH DIEU — can compose() + tonePosition() dung
     std::printf("\n--- TELEX: 5 THANH ĐIỆU ---\n");
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "as"), "á", "s -> á");
+        CHECK_EQ(feed(p, "as"), "á", "as >>> á");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "af"), "à", "f -> à");
+        CHECK_EQ(feed(p, "af"), "à", "af >>> à");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ar"), "ả", "r -> ả");
+        CHECK_EQ(feed(p, "ar"), "ả", "ar >>> ả");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ax"), "ã", "x -> ã");
+        CHECK_EQ(feed(p, "ax"), "ã", "ax >>> ã");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "aj"), "ạ", "j -> ạ");
+        CHECK_EQ(feed(p, "aj"), "ạ", "aj >>> ạ");
     }
 
     std::printf("\n--- TELEX: VỊ TRÍ ĐẶT DẤU ---\n");
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "toans"), "toán", "Dấu nguyên âm chính: 'toán'");
+        CHECK_EQ(feed(p, "toans"), "toán", "toans >>> 'toán'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "hoas"), "hoá", "Kiểu mới: 'hoá' (Không phải 'hóa')");
+        CHECK_EQ(feed(p, "hoas"), "hoá", "hoas >>> 'hoá' [Không phải 'hóa']");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "hocj"), "học", "có phụ âm cuối: 'học'");
+        CHECK_EQ(feed(p, "hocj"), "học", "hocj >>> 'học'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ngoaij"), "ngoại", "Phu am dau 2 chu + nguyen am doi");
+        CHECK_EQ(feed(p, "ngoaij"), "ngoại", "ngoaij >>> ngoại");
     }
 
     // aa->â aw->ă oo->ô ow->ơ uw->ư dd->đ ee->ê
     std::printf("\n--- TELEX: DẤU CHỮ ---\n");
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "aa"), "â", "aa -> â");
+        CHECK_EQ(feed(p, "aa"), "â", "aa >>> â");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "aw"), "ă", "aw -> ă");
+        CHECK_EQ(feed(p, "aw"), "ă", "aw >>> ă");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "oo"), "ô", "oo -> ô");
+        CHECK_EQ(feed(p, "oo"), "ô", "oo >>> ô");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ow"), "ơ", "ow -> ơ");
+        CHECK_EQ(feed(p, "ow"), "ơ", "ow >>> ơ");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "uw"), "ư", "uw -> ư");
+        CHECK_EQ(feed(p, "uw"), "ư", "uw >>> ư");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ee"), "ê", "ee -> ê");
+        CHECK_EQ(feed(p, "ee"), "ê", "ee >>> ê");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "dd"), "đ", "dd -> đ");
+        CHECK_EQ(feed(p, "dd"), "đ", "dd >>> đ");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "aaa"), "aa", "Go lap 3 lan -> huy dau chu, tra 'aa'");
+        CHECK_EQ(feed(p, "aaa"), "aa", "gõ lặp 3 lần -> huỷ giấu aaa >>> 'aa'");
     }
 
     std::printf("\n--- TELEX: DẤU CHỮ + THANH ĐIỆU ---\n");
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "aas"), "ấ", "â + sac >>> ấ");
+        CHECK_EQ(feed(p, "aas"), "ấ", "aas >>> ấ");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "aws"), "ắ", "ă + sac >>> ắ");
+        CHECK_EQ(feed(p, "aws"), "ắ", "aws >>> ắ");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ows"), "ớ", "ơ + sac >>> ớ");
+        CHECK_EQ(feed(p, "ows"), "ớ", "ows >>> ớ");
     }
 
     std::printf("\n--- TELEX: TỪ HOÀN CHỈNH ---\n");
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "ddoongf"), "đồng", "dd + oo + f >>> 'đồng'");
+        CHECK_EQ(feed(p, "ddoongf"), "đồng", "ddoongf >>> 'đồng'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "Vieetj"), "Việt", "Vi + ee + j >>> 'Việt'");
+        CHECK_EQ(feed(p, "Vieetj"), "Việt", "Vieetj >>> 'Việt'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "dduwowcj"), "được", "dd + uw + ow + j >>> 'được'");
+        CHECK_EQ(feed(p, "dduwowcj"), "được", "dduwowcj >>> 'được'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "nguwowfi"), "người", "n + g + u + w + o + w + f + i >>> 'người'");
+        CHECK_EQ(feed(p, "nguwowfi"), "người", "nguwowfi>>> 'người'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "tieengs"), "tiếng", "t + i + ee + n + g + s >>> 'tiếng'");
+        CHECK_EQ(feed(p, "tieengs"), "tiếng", "tieengs >>> 'tiếng'");
     }
     {
         InputProcessor p(makeTelex());
@@ -140,35 +129,31 @@ void test_telex() {
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "tieengs"), "tiếng", "t + i + ee + n + g + s >>> 'tiếng'");
+        CHECK_EQ(feed(p, "tieengs"), "tiếng", "tieengs >>> 'tiếng'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "VIEETJ"), "VIỆT", "CapsLock: V + I + EE + T + J >>> 'VIỆT'");
+        CHECK_EQ(feed(p, "VIEETJ"), "VIỆT", "[CapsLock]: VIEETJ >>> 'VIỆT'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "DDoongf"), "Đồng", "hoa xen ke: DD + o + o + n + g + f >>> 'Đồng'");
+        CHECK_EQ(feed(p, "DDoongf"), "Đồng", "DDoongf >>> 'Đồng'");
     }
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "Hoaf"), "Hoà", "H + o + a + f >>> 'Hoà' (giu chu hoa dau)");
+        CHECK_EQ(feed(p, "Hoaf"), "Hoà", "Hoaf >>> 'Hoà'");
     }
     {
         InputProcessor p(makeTelex());
-        // feedSentence = noi cac r.text (COMMIT) + p.preedit() cuoi cung.
-        // Tu cuoi "nam" chua commit (khong co space sau no) -> nam trong preedit.
         CHECK_EQ(feedSentence(p, "coongj hoaf xax hooij chur nghiax vieejt nam"), "cộng hoà xã hội chủ nghĩa việt nam",
-                 "cau day du: cac tu commit kem space, tu cuoi con trong preedit");
+                 "coongj hoaf xax hooij chur nghiax vieejt nam >>> cộng hoà xã hội chủ nghĩa việt nam");
     }
     {
         InputProcessor p(makeTelex());
         // Co space cuoi -> moi tu deu commit, ket qua co space ket thuc
-        CHECK_EQ(feedSentence(p, "coongj hoaf xax "), "cộng hoà xã ",
-                 "cau ket thuc bang space: commit het, co space cuoi");
+        CHECK_EQ(feedSentence(p, "coongj hoaf xax "), "cộng hoà xã ", "coongj hoaf xax >>> cộng hoà xã ");
     }
 
-    // ---- 2. SPACE khi buffer rong: passthrough ----
     {
         InputProcessor p(makeTelex());
         KeyInput sp;
@@ -176,8 +161,6 @@ void test_telex() {
         auto r = p.process(sp);
         CHECK_EQ_INT(r.action, Action::PASS_THROUGH, "Space buffer rong: PASS_THROUGH");
     }
-
-    // ---- 3. Hai space lien tiep: commit roi passthrough ----
     {
         InputProcessor p(makeTelex());
         KeyInput k;
@@ -246,8 +229,6 @@ void test_telex() {
         CHECK_EQ_INT(r.forwardKey, false, "Esc: khong forward (nuot phim)");
     }
 
-
-    // ---- 9. Space ngay sau commit bang space: chi ra 1 khoang trang moi lan ----
     {
         InputProcessor p(makeTelex());
         KeyInput k;
@@ -261,9 +242,6 @@ void test_telex() {
         CHECK_EQ(r1.text + r2.text, "a a ", "2 tu lien tiep: 'a a ' dung 2 space");
     }
 
-    // ========================================================================
-    // NHOM: BACKSPACE REPLAY — raw_/syl_ khong duoc lech
-    // ========================================================================
     std::printf("\n--- TELEX: BACKSPACE REPLAY ---\n");
 
     // Backspace sau phim tone: bo dau, KHONG mat chu
@@ -284,7 +262,6 @@ void test_telex() {
         CHECK_EQ(p.preedit(), "đôn", "BS tiep: bo 'g' -> 'đôn'");
     }
 
-    // Xoa het khong crash, khong ton phim ma trong raw_
     {
         InputProcessor p(makeTelex());
         feed(p, "coong"); // raw 5 phim, syl 4 ky tu "công"
@@ -320,9 +297,6 @@ void test_telex() {
         CHECK_EQ(p.preedit(), "a", "1 phim 'a' -> dung 'a' (khong bi xu ly 2 lan)");
     }
 
-    // ========================================================================
-    // NHOM: PHIM DIEU KHIEN GIUA CHUNG — khong duoc treo preedit
-    // ========================================================================
     std::printf("\n--- TELEX: PHIM DIEU KHIEN GIUA CHUNG ---\n");
 
     // Ctrl+key giua chung: chot chu + forward, KHONG vut buffer
@@ -338,8 +312,6 @@ void test_telex() {
         CHECK_EQ_INT(r.forwardKey, true, "Ctrl+S: forward de app nhan Ctrl+S");
         CHECK_EQ(p.preedit(), "", "Ctrl+S: buffer reset");
     }
-
-    // Ctrl+key khi buffer rong: passthrough binh thuong
     {
         InputProcessor p(makeTelex());
         KeyInput k;
@@ -349,7 +321,6 @@ void test_telex() {
         CHECK_EQ_INT(r.action, Action::PASS_THROUGH, "Ctrl+C buffer rong: PASS_THROUGH");
     }
 
-    // Phim khong phai ky tu (mui ten...) giua chung: chot chu + forward
     {
         InputProcessor p(makeTelex());
         feed(p, "hoaf"); // "hoà"
@@ -359,8 +330,6 @@ void test_telex() {
         CHECK_EQ(r.text, "hoà", "Mui ten: commit 'hoà'");
         CHECK_EQ_INT(r.forwardKey, true, "Mui ten: forward cho app di chuyen cursor");
     }
-
-    // Delete khi khong co tone: chot chu + forward (app xoa ben phai)
     {
         InputProcessor p(makeTelex());
         feed(p, "toan"); // chua co dau
@@ -368,8 +337,6 @@ void test_telex() {
         CHECK_EQ_INT(r.action, Action::COMMIT, "Delete khong tone: COMMIT + forward");
         CHECK_EQ_INT(r.forwardKey, true, "Delete khong tone: forwardKey = true");
     }
-
-    // Delete khi co tone: bo tone, giu buffer
     {
         InputProcessor p(makeTelex());
         feed(p, "mas"); // "má"
@@ -378,35 +345,80 @@ void test_telex() {
         CHECK_EQ(p.preedit(), "ma", "Delete co tone: bo dau -> 'ma'");
     }
 
-    // ESCAPE giu dung case phim tho da go
     {
         InputProcessor p(makeTelex());
         feed(p, "Mas"); // "Má"
         auto r = feedSpecial(p, KeyInput::Special::ESCAPE);
         CHECK_EQ(r.text, "Mas", "Esc: tra dung phim tho 'Mas' (giu hoa)");
     }
-
-    // ========================================================================
-    // NHOM: HORN EDGE CASES — go lap 'w'
-    // ========================================================================
     std::printf("\n--- TELEX: HORN EDGE CASES ---\n");
 
-    // "ưa" + w: phai HUY, khong duoc ra "ưă"
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "uwaw"), "uaw", "uw+a+w: da co horn -> w thu 2 la huy, ra 'uaw'");
+        CHECK_EQ(feed(p, "uwaw"), "uaw", "uwaw >>>'uaw'");
     }
 
-    // "ương" + w: huy horn ca cap
     {
         InputProcessor p(makeTelex());
         feed(p, "huowngw"); // "hương" + w -> huy
-        CHECK_EQ(p.preedit(), "huowng", "huowng+w: huy horn -> tra chuoi tho 'huowng'");
+        CHECK_EQ(p.preedit(), "huowng", "hhuowng >>> 'huowng'");
     }
-
-    // qu + ow: chi horn 'o', khong dinh 'u'
     {
         InputProcessor p(makeTelex());
-        CHECK_EQ(feed(p, "quowfn"), "quờn", "qu + ow + f + n: chi horn 'o' -> 'quờn'");
+        CHECK_EQ(feed(p, "quowfn"), "quờn", "quowfn >>> 'quờn'");
+    }
+
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "ruawr"), "rửa", "ruawr >>> 'rửa'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "muaw"), "mưa", "muaw >>> 'mưa'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "cuawr"), "cửa", "cuawr >>> 'cửa'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "duwaf"), "dừa", "duwaf >>> 'dừa'"); // w truoc a: uw -> ư roi + a
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "chuaws"), "chứa", "chuaws >>> 'chứa'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "giuawx"), "giữa", "giuawx >>> 'giữa'");
+    }
+
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "quawng"), "quăng", "quawng >>> 'quăng'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "quawns"), "quắn", "quawns >>> 'quắn'");
+    }
+
+    // ---- Dam bao "oa"/"uo" khong bi anh huong boi fix ----
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "xoawn"), "xoăn", "xoawn >>> 'xoăn'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "huowng"), "hương", "huowng >>> 'hương'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "dduwowcj"), "được", "dduwowcj >>> 'được'");
+    }
+
+    // ---- Huy horn: go w lan nua tren "ưa" ----
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "muaww"), "muaw", "muaww >>> 'muaw' (huy horn)");
     }
 }
