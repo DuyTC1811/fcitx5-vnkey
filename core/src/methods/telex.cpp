@@ -19,6 +19,9 @@ namespace engine {
             }
 
             [[nodiscard]] std::optional<Transform> match(const Syllable& cur, const char32_t key) const override {
+                if (cur.broken()) {
+                    return std::nullopt;
+                }
                 // dd -> đ: phai check TRUOC valid(), vi buffer "d" chua co nguyen am
                 if (key == U'd') {
                     if (cur.initial == U"đ") {
@@ -57,7 +60,7 @@ namespace engine {
                         if (contains(cur.vowel, U'ê')) {
                             return Transform{Transform::Kind::CANCEL_MARK, MARK_CIRCUMFLEX};
                         }
-                        if (endsWith(cur.vowel, U'e')) {
+                        if (cur.coda.empty() && endsWith(cur.vowel, U'e')) {
                             return Transform{Transform::Kind::MARK, MARK_CIRCUMFLEX};
                         }
                         break;

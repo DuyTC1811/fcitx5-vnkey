@@ -124,4 +124,8 @@ namespace engine {
         return 0; // "của", "mía" -> dau dau
     }
 
+    bool Syllable::broken() const {
+        return coda.find_first_of(U"aeiouy") != std::u32string::npos;
+    }
+
 } // namespace engine

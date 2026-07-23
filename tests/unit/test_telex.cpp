@@ -416,9 +416,19 @@ void test_telex() {
         CHECK_EQ(feed(p, "dduwowcj"), "được", "dduwowcj >>> 'được'");
     }
 
-    // ---- Huy horn: go w lan nua tren "ưa" ----
     {
         InputProcessor p(makeTelex());
         CHECK_EQ(feed(p, "muaww"), "muaw", "muaww >>> 'muaw' (huy horn)");
     }
+
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feedSentence(p, "depe"), "depe", "depe >>> 'depe");
+    }
+
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feedSentence(p, "depes"), "depes", "depes >>> 'depes");
+    }
+
 }

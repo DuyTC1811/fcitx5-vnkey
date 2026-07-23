@@ -25,6 +25,9 @@ namespace engine {
 
         void popBack(); // xoa ky tu cuoi: coda -> vowel -> initial; het vowel thi mat tone
 
+        // Am tiet da vo cau truc (coda chua nguyen am) -> chi con la chuoi tho
+        [[nodiscard]] bool broken() const;
+
         // Kiem tra cau truc am tiet co the la tieng Viet khong
         [[nodiscard]] bool valid() const;
 

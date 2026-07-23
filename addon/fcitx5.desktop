@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Fcitx5
+Exec=fcitx5 -d
+X-GNOME-Autostart-enabled=true
