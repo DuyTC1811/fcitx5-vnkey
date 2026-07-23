@@ -48,10 +48,10 @@ namespace engine {
                 // 2. DẤU CHỮ
                 switch (key) {
                     case U'a': // aa -> â, aaa -> huy
-                        if (contains(cur.vowel, U'â')) {
+                        if (cur.coda.empty() && contains(cur.vowel, U'â')) {
                             return Transform{Transform::Kind::CANCEL_MARK, MARK_CIRCUMFLEX};
                         }
-                        if (endsWith(cur.vowel, U'a')) {
+                        if (cur.coda.empty() && endsWith(cur.vowel, U'a')) {
                             return Transform{Transform::Kind::MARK, MARK_CIRCUMFLEX};
                         }
                         break;
@@ -69,7 +69,7 @@ namespace engine {
                         if (contains(cur.vowel, U'ô')) {
                             return Transform{Transform::Kind::CANCEL_MARK, MARK_CIRCUMFLEX};
                         }
-                        if (endsWith(cur.vowel, U'o')) {
+                        if (cur.coda.empty() && endsWith(cur.vowel, U'o')) {
                             return Transform{Transform::Kind::MARK, MARK_CIRCUMFLEX};
                         }
                         break;

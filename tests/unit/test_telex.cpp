@@ -431,4 +431,13 @@ void test_telex() {
         CHECK_EQ(feedSentence(p, "depes"), "depes", "depes >>> 'depes");
     }
 
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feedSentence(p, "kaffka"), "kafka", "kafka >>> 'kafka");
+    }
+
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feedSentence(p, "Kaffka"), "Kafka", "Kafka >>> 'Kafka");
+    }
 }
