@@ -1,12 +1,12 @@
 #pragma once
 
 namespace engine {
-    // Case mapping bang chu cai tieng Viet (khong dung towlower vi phu thuoc locale)
+    // CASE MAPPING BẢNG CHỮ CÁI TIẾNG VIỆT
     [[nodiscard]] constexpr char32_t toLowerVi(const char32_t c) {
         if (c >= U'A' && c <= U'Z') {
             return c + 0x20;
         }
-        if (c >= 0xC0 && c <= 0xDE && c != 0xD7) { // À..Ý dai Latin-1
+        if (c >= 0xC0 && c <= 0xDE && c != 0xD7) {
             return c + 0x20;
         }
         switch (c) {
@@ -25,7 +25,7 @@ namespace engine {
             default:
                 break;
         }
-        if (c >= 0x1EA0 && c <= 0x1EF9) { // Ạ..ỹ: codepoint chan = hoa
+        if (c >= 0x1EA0 && c <= 0x1EF9) {
             return (c % 2 == 0) ? c + 1 : c;
         }
         return c;

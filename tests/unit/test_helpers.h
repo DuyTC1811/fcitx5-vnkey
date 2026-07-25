@@ -43,6 +43,20 @@ using namespace engine;
         }                                                                                                              \
     } while (0)
 
+// ============================================================================
+// Macro helpers: 1 dong / 1 case, giu dung __LINE__ khi fail tro vao case do.
+//   TELEX("mas", "má")            -> label tu sinh: mas >>> 'má'
+//   TELEX("aaa", "aa", "ghi chu") -> label kem ghi chu
+//   TELEX_SENTENCE(...)           -> dung feedSentence (nhieu tu, co Space)
+// ============================================================================
+#define TELEX(input, expected, ...)                                                                                    \
+    do {                                                                                                               \
+        engine::InputProcessor p_(engine::makeTelex());                                                                \
+        CHECK_EQ(feed(p_, input), expected, input " >>> '" expected "'  " #__VA_ARGS__);                               \
+    } while (0)
+
+
+
 inline void printTestSummary() {
     std::printf("\n");
     std::printf("══════════════════════════════════\n");
@@ -55,11 +69,11 @@ inline void printTestSummary() {
 }
 
 // ============================================================================
-// FEED — go mot chuoi phim ASCII, tra ve preedit hien tai
+// FEED — NGÕ MỘT CHUỖI PHÍM ASCII, TRẢ VỀ PREEDIT HIỆN TẠI
 // ============================================================================
 //
 // Dung preedit() thay vi r.text vi:
-//   - PASS_THROUGH trả về text rỗng -> không coi là kết qủa
+//   - PASS_THROUGH TRẢ VỀ TEX RỖNG
 //   - COMMIT xoa buffer -> preedit() = "" (dung, xem feedCommit ben duoi)
 //   - preedit() LUON la trang thai that cua buffer
 //
