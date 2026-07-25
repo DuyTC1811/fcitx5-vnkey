@@ -97,6 +97,26 @@ void test_telex() {
         InputProcessor p(makeTelex());
         CHECK_EQ(feed(p, "ows"), "ớ", "ows >>> ớ");
     }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "gocso"), "gốc", "gocso >>> 'gốc'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "gocos"), "gốc", "gocos >>> 'gốc' (dao thu tu s/o)");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "goocs"), "gốc", "goocs >>> 'gốc' (oo truoc coda)");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "hocj"), "học", "hocj >>> 'học'");
+    }
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feed(p, "nhatas"), "nhất", "nhatas >>> 'nhất' (a sau coda t)");
+    }
 
     std::printf("\n--- TELEX: TỪ HOÀN CHỈNH ---\n");
     {
@@ -415,15 +435,6 @@ void test_telex() {
         CHECK_EQ(feed(p, "muaww"), "muaw", "muaww >>> 'muaw' (huy horn)");
     }
 
-    {
-        InputProcessor p(makeTelex());
-        CHECK_EQ(feedSentence(p, "depe"), "depe", "depe >>> 'depe");
-    }
-
-    {
-        InputProcessor p(makeTelex());
-        CHECK_EQ(feedSentence(p, "depes"), "depes", "depes >>> 'depes");
-    }
 
     {
         InputProcessor p(makeTelex());

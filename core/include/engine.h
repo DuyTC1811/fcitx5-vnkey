@@ -43,7 +43,9 @@ namespace engine {
         std::unique_ptr<InputMethodDef> method_;
         Config cfg_;
         std::u32string raw_; // phim tho nguoi dung da go: "mas"
+        std::u32string flat_; // raw da GOP cac cap huy (ff->f, aaa->aa) — hien khi literal
         Syllable syl_; // trang thai am tiet: vowel="a", tone=1
+        bool literal_ = false; // spellcheck vo: hien raw, ngung transform
     };
 
     // Tien ich chuyen doi (implement trong engine.cpp)

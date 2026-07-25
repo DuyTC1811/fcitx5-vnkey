@@ -36,5 +36,8 @@ namespace engine {
 
         // Vi tri nguyen am nhan dau thanh
         [[nodiscard]] int tonePosition(bool newToneStyle) const;
+
+        // Cau truc co the la tieng Viet khong (coda hop le)? Dung cho spellcheck
+        [[nodiscard]] bool structureOk() const;
     };
 } // namespace engine

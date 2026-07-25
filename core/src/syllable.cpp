@@ -6,7 +6,7 @@
 
 namespace engine {
     namespace {
-        // Bang NFC: nguyen am goc x thanh dieu -> ky tu precomposed (1 codepoint)
+        // BẢN NFC: NGUYÊN ÂM GÓCO  x thanh dieu -> ky tu precomposed (1 codepoint)
         constexpr std::u32string_view BASES = U"aăâeêioôơuưy";
         constexpr char32_t TONE_TABLE[12][6] = {
                 {U'a', U'á', U'à', U'ả', U'ã', U'ạ'}, {U'ă', U'ắ', U'ằ', U'ẳ', U'ẵ', U'ặ'},
@@ -60,6 +60,10 @@ namespace engine {
         if (vowel.empty()) {
             tone = 0; // het nguyen am -> mat thanh
         }
+    }
+
+    bool Syllable::broken() const {
+        return coda.find_first_of(U"aeiouy") != std::u32string::npos;
     }
 
     bool Syllable::valid() const {
@@ -124,8 +128,19 @@ namespace engine {
         return 0; // "của", "mía" -> dau dau
     }
 
-    bool Syllable::broken() const {
-        return coda.find_first_of(U"aeiouy") != std::u32string::npos;
+    bool Syllable::structureOk() const {
+        // Coda hop le: rong, c, ch, m, n, ng, nh, p, t
+        // (i/y/o/u cuoi da duoc phan vao vowel roi)
+        if (coda.empty()) {
+            return true;
+        }
+        static constexpr std::u32string_view VALID_CODAS[] = {U"c", U"ch", U"m", U"n", U"ng", U"nh", U"p", U"t"};
+        for (const auto v: VALID_CODAS) {
+            if (coda == v) {
+                return true;
+            }
+        }
+        return false;
     }
 
 } // namespace engine

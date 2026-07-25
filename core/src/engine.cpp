@@ -103,6 +103,17 @@ namespace engine {
         }
     } // namespace
 
+    namespace {
+        void eraseLastKey(std::u32string& s, const char32_t low) {
+            for (auto it = s.rbegin(); it != s.rend(); ++it) {
+                if (toLowerVi(*it) == low) {
+                    s.erase(std::next(it).base());
+                    return;
+                }
+            }
+        }
+    } // namespace
+
     InputProcessor::InputProcessor(std::unique_ptr<InputMethodDef> method, const Config cfg) :
         method_(std::move(method)), cfg_(cfg) {}
 
@@ -110,10 +121,15 @@ namespace engine {
 
     void InputProcessor::reset() {
         raw_.clear();
+        flat_.clear();
         syl_ = Syllable{};
+        literal_ = false;
     }
 
     std::string InputProcessor::preedit() const {
+        if (literal_) {
+            return toUtf8(flat_);
+        }
         return toUtf8(syl_.compose(cfg_.newToneStyle));
     }
 
@@ -125,69 +141,83 @@ namespace engine {
         const bool upper = low != orig;
         raw_ += orig; // giu phim goc cho ESCAPE va replay
 
-        // syl_ luon lowercase -> match truc tiep, telex khong can biet ve case
+        if (literal_) {
+            flat_ += orig; // tu da vo: chi noi them de hien/commit
+            return;
+        }
+
+        bool transformed = false;
         if (const auto tf = method_->match(syl_, low)) {
+            transformed = true;
             switch (tf->kind) {
                 case Transform::Kind::TONE:
                     syl_.tone = tf->value;
-                    return;
+                    break;
 
                 case Transform::Kind::CANCEL_TONE:
+                    eraseLastKey(flat_, low); // "ff" -> con MOT f trong flat
                     syl_.tone = 0;
-                    syl_.pushCoda(low, upper); // "más" + s -> "mas"
-                    return;
+                    syl_.pushCoda(low, upper);
+                    break;
 
                 case Transform::Kind::MARK:
                     if (tf->value == MARK_DSTROKE) {
-                        syl_.initial = U"đ"; // cung do dai -> co case giu nguyen
+                        syl_.initial = U"đ";
                     } else {
                         applyMarkToVowel(syl_.vowel, tf->value, syl_.initial);
                     }
-                    return;
+                    break;
 
                 case Transform::Kind::CANCEL_MARK:
+                    eraseLastKey(flat_, low); // "aaa" -> flat "aa"
                     if (tf->value == MARK_DSTROKE) {
                         syl_.initial = U"d";
-                        syl_.pushCoda(low, upper); // "đ" + d -> "dd"
+                        syl_.pushCoda(low, upper);
                     } else {
                         for (auto& c: syl_.vowel) {
                             c = stripMark(c);
                         }
-                        syl_.pushVowel(low, upper); // "â" + a -> "aa"
+                        syl_.pushVowel(low, upper);
                     }
-                    return;
+                    break;
 
                 case Transform::Kind::NONE:
+                    transformed = false;
                     break;
             }
         }
 
-        // ---- Phim thuong: phan loai theo lowercase ----
-        switch (low) {
-            case U'a':
-            case U'e':
-            case U'i':
-            case U'o':
-            case U'u':
-                if (syl_.vowel.empty() && syl_.initial == U"q") {
-                    syl_.pushInitial(low, upper);
+        if (!transformed) {
+            switch (low) {
+                case U'a':
+                case U'e':
+                case U'i':
+                case U'o':
+                case U'u':
+                    if (syl_.vowel.empty() && syl_.initial == U"q") {
+                        syl_.pushInitial(low, upper);
+                        break;
+                    }
+                    [[fallthrough]];
+                case U'y':
+                    if (syl_.coda.empty()) {
+                        syl_.pushVowel(low, upper);
+                    } else {
+                        syl_.pushCoda(low, upper);
+                    }
                     break;
-                }
-                [[fallthrough]];
-            case U'y':
-                if (syl_.coda.empty()) {
-                    syl_.pushVowel(low, upper);
-                } else {
-                    syl_.pushCoda(low, upper);
-                }
-                break;
-            default:
-                if (syl_.vowel.empty()) {
-                    syl_.pushInitial(low, upper);
-                } else {
-                    syl_.pushCoda(low, upper);
-                }
-                break;
+                default:
+                    if (syl_.vowel.empty()) {
+                        syl_.pushInitial(low, upper);
+                    } else {
+                        syl_.pushCoda(low, upper);
+                    }
+                    break;
+            }
+        }
+        flat_ += orig; // moi phim deu vao flat — tone key phai hien lai neu tu vo (kafka)
+        if (cfg_.spellCheck && !syl_.structureOk()) {
+            literal_ = true;
         }
     }
 
