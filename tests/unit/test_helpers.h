@@ -94,7 +94,7 @@ inline std::string feedCommit(InputProcessor& p, const std::string_view keys) {
 // FEED 1 PHIM — tra ve Result day du, dung khi can kiem tra action
 // ----------------------------------------------------------------------------
 inline Result feedKey(InputProcessor& p, char c) {
-    engine::KeyInput k;
+    KeyInput k;
     k.ch = static_cast<char32_t>(c);
     return p.process(k);
 }
@@ -115,17 +115,15 @@ inline Result feedSpecial(InputProcessor& p, const KeyInput::Special sp) {
 inline std::string feedSentence(InputProcessor& p, const std::string_view keys) {
     std::string out;
     for (const char c: keys) {
-        engine::KeyInput k;
+        KeyInput k;
         if (c == ' ') {
             k.special = KeyInput::Special::SPACE;
         } else {
             k.ch = static_cast<char32_t>(c);
         }
-        auto r = p.process(k);
-        if (r.action == Action::COMMIT) {
+        if (const auto r = p.process(k); r.action == Action::COMMIT) {
             out += r.text;
         }
-        // KHONG tu chen " " — space da nam trong r.text roi
     }
-    return out + p.preedit(); // phan con dang go do
+    return out + p.preedit();
 }

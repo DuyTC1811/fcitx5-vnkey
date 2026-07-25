@@ -30,7 +30,7 @@ BraceWrapping:
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: AfterColon
 BreakConstructorInitializersBeforeComma: false
-InsertBraces: true          # Tự thêm {} cho if/else/for/while 1 dòng (cần clang-format >= 15)
+InsertBraces: true          # AUTO ADD {} FOR if/else/for/WHILE 1 LINE
 ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ContinuationIndentWidth: 8

@@ -53,7 +53,7 @@ void VnKeyEngine::keyEvent(const InputMethodEntry&, KeyEvent& keyEvent) {
     auto* state = ic->propertyFor(&factory_);
 
     // Ranh gioi addon -> core: dich phim Fcitx5 sang kieu thuan cua core.
-    engine::KeyInput ki = toKeyInput(keyEvent.key());
+    const engine::KeyInput ki = toKeyInput(keyEvent.key());
     engine::Result r = state->processor_.process(ki);
 
     switch (r.action) {
@@ -86,7 +86,6 @@ void VnKeyEngine::keyEvent(const InputMethodEntry&, KeyEvent& keyEvent) {
             clearPreedit(ic);
             ic->commitString(r.text);
             keyEvent.filterAndAccept();
-            return;
     }
 }
 

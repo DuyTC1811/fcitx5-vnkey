@@ -25,7 +25,7 @@ namespace engine {
         // nullopt = phim thuong, cu append vao buffer
         [[nodiscard]] virtual std::optional<Transform> match(const Syllable& current, char32_t key) const = 0;
 
-        [[nodiscard]] virtual const char *name() const = 0;
+        [[nodiscard]] virtual const char* name() const = 0;
     };
 
     std::unique_ptr<InputMethodDef> makeTelex();
