@@ -6,7 +6,7 @@
 
 namespace engine {
     namespace {
-        // BẢN NFC: NGUYÊN ÂM GÓCO  x thanh dieu -> ky tu precomposed (1 codepoint)
+        // BẢN NFC: NGUYÊN ÂM GỐC  x THANH ĐIỆU -> KÝ TỰ XOẠN SẴN
         constexpr std::u32string_view BASES = U"aăâeêioôơuưy";
         constexpr char32_t TONE_TABLE[12][6] = {
                 {U'a', U'á', U'à', U'ả', U'ã', U'ạ'}, {U'ă', U'ắ', U'ằ', U'ẳ', U'ẵ', U'ặ'},
@@ -58,7 +58,7 @@ namespace engine {
             upInitial.pop_back();
         }
         if (vowel.empty()) {
-            tone = 0; // het nguyen am -> mat thanh
+            tone = 0;
         }
     }
 

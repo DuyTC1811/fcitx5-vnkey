@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(ENABLE_TESTS "Build unit tests" ON)
-option(BUILD_ADDON "Build fcitx5 addon (tat de build rieng core)" ON)
+option(ENABLE_TESTS "BUILD UNIT TESTS" ON)
+option(BUILD_ADDON "BUILD fcitx5 ADDON" ON)
 
 add_subdirectory(core)
 

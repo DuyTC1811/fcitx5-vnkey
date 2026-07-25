@@ -4,17 +4,17 @@
 #include <vector>
 
 namespace engine {
-    // Am tiet tieng Viet: [phu am dau][van][thanh dieu]
+    // ÂM TIẾT TIẾNG VIỆT : [PHỤ ÂM GIẤU][van][THANH ĐIỆU]
     // initial/vowel/coda LUON chua lowercase — case goc luu o cac co up* song song,
     // va CHI duoc ap dung mot cho duy nhat: cuoi compose().
     struct Syllable {
-        std::u32string initial; // phu am dau: t, tr, ng, ngh...
-        std::u32string vowel; // nguyen am: a, oa, uye...
-        std::u32string coda; // phu am cuoi: n, ng, c, t...
+        std::u32string initial; // PHỤ ÂM GIẤU: t, tr, ng, ngh...
+        std::u32string vowel; // NGUYÊN ÂM: a, oa, uye...
+        std::u32string coda; // PHỤ ÂM CUỐI: n, ng, c, t...
         std::vector<bool> upInitial;
         std::vector<bool> upVowel;
         std::vector<bool> upCoda;
-        int tone = 0; // 0=ngang 1=sac 2=huyen 3=hoi 4=nga 5=nang
+        int tone = 0; // 0 = NGÃ 1 = SẮC 2 = HUYỀN 3 = HỎI 4 = MGÃ 5 = NẶNG
 
         // Helper giu ky tu va co case luon dong bo
         void pushInitial(char32_t c, bool upper);
