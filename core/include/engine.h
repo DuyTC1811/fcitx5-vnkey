@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 
-#include "input_method.hpp"
-#include "keyinput.hpp"
+#include "input_method.h"
+#include "keyinput.h"
 
 namespace engine {
     enum class Action {

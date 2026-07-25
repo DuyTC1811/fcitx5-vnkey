@@ -1,8 +1,8 @@
-#include "syllable.hpp"
+#include "syllable.h"
 
 #include <cassert>
 
-#include "chars.hpp"
+#include "chars.h"
 
 namespace engine {
     namespace {

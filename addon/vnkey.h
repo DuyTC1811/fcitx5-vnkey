@@ -6,7 +6,7 @@
 #include <fcitx/inputmethodengine.h>
 #include <fcitx/instance.h>
 
-#include "engine.hpp"
+#include "engine.h"
 
 // State theo tung InputContext (moi o nhap lieu / cua so co buffer rieng).
 // InputProcessor la lop core thuan, khong the ke thua lop cua Fcitx5,

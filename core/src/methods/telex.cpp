@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include "input_method.hpp"
+#include "input_method.h"
 
 namespace engine {
     namespace {
@@ -30,7 +30,6 @@ namespace engine {
                     if (cur.initial == U"d" && cur.vowel.empty()) {
                         return Transform{Transform::Kind::MARK, MARK_DSTROKE};
                     }
-                    // roi xuong duoi: 'd' sau nguyen am la phu am cuoi binh thuong
                 }
 
                 if (!cur.valid()) {

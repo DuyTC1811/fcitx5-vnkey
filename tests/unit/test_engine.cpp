@@ -1,5 +1,5 @@
-#include "../../core/include/engine.hpp"
-#include "../../core/include/input_method.hpp"
+#include "../../core/include/engine.h"
+#include "../../core/include/input_method.h"
 #include "test_helpers.h"
 
 void test_engine_basics() {

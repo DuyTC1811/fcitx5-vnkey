@@ -1,11 +1,11 @@
-#include "engine.hpp"
+#include "engine.h"
 
 #include <memory>
 #include <ranges>
 #include <string>
 
-#include "chars.hpp"
-#include "input_method.hpp"
+#include "chars.h"
+#include "input_method.h"
 
 namespace engine {
     std::string toUtf8(std::u32string_view const s) {
@@ -31,7 +31,6 @@ namespace engine {
         return out;
     }
 
-    // ---- Helpers dau chu: thuoc ve "ap dung Transform", nen nam o engine ----
     namespace {
         char32_t applyCircumflex(const char32_t c) {
             switch (c) {
@@ -170,6 +169,11 @@ namespace engine {
             case U'i':
             case U'o':
             case U'u':
+                if (syl_.vowel.empty() && syl_.initial == U"q") {
+                    syl_.pushInitial(low, upper);
+                    break;
+                }
+                [[fallthrough]];
             case U'y':
                 if (syl_.coda.empty()) {
                     syl_.pushVowel(low, upper);
@@ -233,7 +237,7 @@ namespace engine {
                 if (raw_.empty()) {
                     return {Action::PASS_THROUGH, ""};
                 }
-                // Commit kem luon khoang trang: "hoà" + space -> "hoà "
+                // COMMIT THÊM KHOẢNG TRẮNG
                 Result r{Action::COMMIT, preedit() + " "};
                 reset();
                 return r;

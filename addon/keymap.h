@@ -5,7 +5,7 @@
 
 #include <fcitx-utils/key.h>
 
-#include "keyinput.hpp"
+#include "keyinput.h"
 
 namespace fcitx {
     engine::KeyInput toKeyInput(const Key& key);

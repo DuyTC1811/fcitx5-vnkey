@@ -1,5 +1,5 @@
 #include "vnkey.h"
-#include "keymap.h" // fcitx::toKeyInput(const Key&) -> engine::KeyInput
+#include "keymap.h"
 
 #include <fcitx-utils/key.h>
 #include <fcitx/inputcontext.h>

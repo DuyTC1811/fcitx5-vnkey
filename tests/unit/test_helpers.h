@@ -2,12 +2,11 @@
 #include <cstdio>
 #include <string>
 
-#include "engine.hpp"
+#include "engine.h"
 inline int g_failures = 0;
 inline int g_passes = 0;
 using namespace engine;
 
-// MACRO ASSERT
 #define CHECK_EQ(actual, expected, desc)                                                                               \
     do {                                                                                                               \
         auto a = (actual);                                                                                             \
@@ -26,7 +25,6 @@ using namespace engine;
         }                                                                                                              \
     } while (0)
 
-// Variant cho enum/int — so sánh số
 #define CHECK_EQ_INT(actual, expected, desc)                                                                           \
     do {                                                                                                               \
         auto a = static_cast<int>(actual);                                                                             \
@@ -45,7 +43,6 @@ using namespace engine;
         }                                                                                                              \
     } while (0)
 
-// In tổng kết
 inline void printTestSummary() {
     std::printf("\n");
     std::printf("══════════════════════════════════\n");
@@ -62,7 +59,7 @@ inline void printTestSummary() {
 // ============================================================================
 //
 // Dung preedit() thay vi r.text vi:
-//   - PASS_THROUGH tra text rong -> khong duoc coi la ket qua
+//   - PASS_THROUGH trả về text rỗng -> không coi là kết qủa
 //   - COMMIT xoa buffer -> preedit() = "" (dung, xem feedCommit ben duoi)
 //   - preedit() LUON la trang thai that cua buffer
 //

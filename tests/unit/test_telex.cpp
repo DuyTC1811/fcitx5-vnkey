@@ -1,5 +1,5 @@
-#include "engine.hpp"
-#include "input_method.hpp"
+#include "engine.h"
+#include "input_method.h"
 #include "test_helpers.h"
 
 void test_telex() {
@@ -45,7 +45,11 @@ void test_telex() {
         CHECK_EQ(feed(p, "ngoaij"), "ngoại", "ngoaij >>> ngoại");
     }
 
-    // aa->â aw->ă oo->ô ow->ơ uw->ư dd->đ ee->ê
+    {
+        InputProcessor p(makeTelex());
+        CHECK_EQ(feedSentence(p, "quar"), "quả", "quar >>> 'quả");
+    }
+
     std::printf("\n--- TELEX: DẤU CHỮ ---\n");
     {
         InputProcessor p(makeTelex());
@@ -150,7 +154,7 @@ void test_telex() {
     }
     {
         InputProcessor p(makeTelex());
-        // Co space cuoi -> moi tu deu commit, ket qua co space ket thuc
+
         CHECK_EQ(feedSentence(p, "coongj hoaf xax "), "cộng hoà xã ", "coongj hoaf xax >>> cộng hoà xã ");
     }
 
@@ -174,7 +178,6 @@ void test_telex() {
         CHECK_EQ_INT(r2.action, Action::PASS_THROUGH, "Space 2: buffer rong -> PASS_THROUGH");
     }
 
-    // ---- 4. ENTER: commit KHONG kem newline, forwardKey = true ----
     {
         InputProcessor p(makeTelex());
         for (char c: {'m', 'a', 's'}) { // "mas" -> "má"
@@ -191,7 +194,6 @@ void test_telex() {
         CHECK_EQ(p.preedit(), "", "Enter: buffer reset");
     }
 
-    // ---- 5. TAB: nhu Enter ----
     {
         InputProcessor p(makeTelex());
         KeyInput k;
@@ -204,7 +206,6 @@ void test_telex() {
         CHECK_EQ_INT(r.forwardKey, true, "Tab: forwardKey = true");
     }
 
-    // ---- 6. ENTER buffer rong: passthrough, khong forward flag ----
     {
         InputProcessor p(makeTelex());
         KeyInput en;
@@ -213,7 +214,6 @@ void test_telex() {
         CHECK_EQ_INT(r.action, Action::PASS_THROUGH, "Enter buffer rong: PASS_THROUGH");
     }
 
-    // ---- 7. ESCAPE: commit chuoi phim tho, KHONG forward ----
     {
         InputProcessor p(makeTelex());
         for (char c: {'m', 'a', 's'}) {
@@ -244,7 +244,6 @@ void test_telex() {
 
     std::printf("\n--- TELEX: BACKSPACE REPLAY ---\n");
 
-    // Backspace sau phim tone: bo dau, KHONG mat chu
     {
         InputProcessor p(makeTelex());
         feed(p, "mas"); // "má"
@@ -252,7 +251,6 @@ void test_telex() {
         CHECK_EQ(p.preedit(), "ma", "BS sau 'mas': bo dau sac -> 'ma' (khong mat 'a')");
     }
 
-    // Backspace sau dau chu: go lai duoc tu dau
     {
         InputProcessor p(makeTelex());
         feed(p, "ddoongf"); // "đồng"
@@ -273,7 +271,6 @@ void test_telex() {
         CHECK_EQ_INT(r.action, Action::PASS_THROUGH, "Space sau khi xoa het: PASS_THROUGH (raw_ sach that su)");
     }
 
-    // Backspace giu dung case (co up* replay dung)
     {
         InputProcessor p(makeTelex());
         feed(p, "Vieetj"); // "Việt"
@@ -289,8 +286,6 @@ void test_telex() {
         feed(p, "s"); // go dau moi
         CHECK_EQ(p.preedit(), "toán", "BS roi go dau khac: 'toản' -> 'toan' -> 'toán'");
     }
-
-    // Khong double-processing: go 1 phim ra dung 1 ky tu
     {
         InputProcessor p(makeTelex());
         feed(p, "a");
@@ -402,7 +397,6 @@ void test_telex() {
         CHECK_EQ(feed(p, "quawns"), "quắn", "quawns >>> 'quắn'");
     }
 
-    // ---- Dam bao "oa"/"uo" khong bi anh huong boi fix ----
     {
         InputProcessor p(makeTelex());
         CHECK_EQ(feed(p, "xoawn"), "xoăn", "xoawn >>> 'xoăn'");
