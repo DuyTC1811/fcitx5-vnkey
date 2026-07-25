@@ -13,6 +13,13 @@ test: build
 	ctest --test-dir build --output-on-failure
 
 rebuild: clean build test
+
+install:
+	rm -rfv build
+	cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+	cmake --build build -j$(NPROC)
+	sudo cmake --install build
+
 #mkdir -p build && cd build
 #cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
 #sudo make install
