@@ -8,7 +8,7 @@ namespace engine {
             return s.find(c) != std::u32string::npos;
         }
 
-        bool endsWith(const std::u32string& s, char32_t c) {
+        bool endsWith(const std::u32string& s, const char32_t c) {
             return !s.empty() && s.back() == c;
         }
 

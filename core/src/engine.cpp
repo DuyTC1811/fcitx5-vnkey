@@ -75,7 +75,7 @@ namespace engine {
             }
         }
 
-        // Ap dau chu vao vowel (luon lowercase)
+        // ÁP DỤNG DẤU CHỮ VÀO NGUYÊN ÂM
         void applyMarkToVowel(std::u32string& vowel, const int mark, const std::u32string& initial) {
             if (mark == MARK_HORN && initial != U"qu" && initial != U"q") {
                 for (size_t i = 0; i + 1 < vowel.size(); ++i) {
