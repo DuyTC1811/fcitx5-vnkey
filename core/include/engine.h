@@ -46,6 +46,7 @@ namespace engine {
         std::u32string flat_; // raw da GOP cac cap huy (ff->f, aaa->aa) — hien khi literal
         Syllable syl_; // trang thai am tiet: vowel="a", tone=1
         bool literal_ = false; // spellcheck vo: hien raw, ngung transform
+        bool delayedMark_ = false; // dau chu duoc go SAU khi da co coda (data, depe)
     };
 
     // Tien ich chuyen doi (implement trong engine.cpp)

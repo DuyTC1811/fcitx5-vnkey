@@ -124,10 +124,15 @@ namespace engine {
         flat_.clear();
         syl_ = Syllable{};
         literal_ = false;
+        delayedMark_ = false;
     }
 
     std::string InputProcessor::preedit() const {
         if (literal_) {
+            return toUtf8(flat_);
+        }
+        // Dau go tre + vi pham luat coda tac -> tu nuoc ngoai: tra lai chuoi tho
+        if (delayedMark_ && !syl_.toneOk()) {
             return toUtf8(flat_);
         }
         return toUtf8(syl_.compose(cfg_.newToneStyle));
@@ -164,12 +169,16 @@ namespace engine {
                     if (tf->value == MARK_DSTROKE) {
                         syl_.initial = U"đ";
                     } else {
+                        if (!syl_.coda.empty()) {
+                            delayedMark_ = true; // "dat" + a, "goc" + o
+                        }
                         applyMarkToVowel(syl_.vowel, tf->value, syl_.initial);
                     }
                     break;
 
                 case Transform::Kind::CANCEL_MARK:
                     eraseLastKey(flat_, low); // "aaa" -> flat "aa"
+                    delayedMark_ = false;
                     if (tf->value == MARK_DSTROKE) {
                         syl_.initial = U"d";
                         syl_.pushCoda(low, upper);

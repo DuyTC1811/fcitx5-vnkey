@@ -143,4 +143,12 @@ namespace engine {
         return false;
     }
 
+    bool Syllable::toneOk() const {
+        const bool stopCoda = coda == U"p" || coda == U"t" || coda == U"c" || coda == U"ch";
+        if (!stopCoda) {
+            return true;
+        }
+        return tone == 1 || tone == 5; // sac hoac nang
+    }
+
 } // namespace engine

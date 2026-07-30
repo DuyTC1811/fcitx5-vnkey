@@ -39,5 +39,8 @@ namespace engine {
 
         // Cau truc co the la tieng Viet khong (coda hop le)? Dung cho spellcheck
         [[nodiscard]] bool structureOk() const;
+
+        // Coda tac (p t c ch) BUOC phai mang thanh sac hoac nang: "hoc" khong ton tai
+        [[nodiscard]] bool toneOk() const;
     };
 } // namespace engine
