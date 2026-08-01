@@ -293,7 +293,6 @@ namespace engine {
             }
 
             case S::ESCAPE: {
-                // Huy che bien: commit lai dung chuoi phim tho da go ("mas" thay vi "má")
                 if (raw_.empty()) {
                     return {Action::PASS_THROUGH, ""};
                 }
@@ -306,7 +305,7 @@ namespace engine {
                 break;
         }
 
-        if (key.ch == 0) { // mui ten, Home, F1... — chot chu truoc khi cursor chay di
+        if (key.ch == 0) {
             if (raw_.empty()) {
                 return {Action::PASS_THROUGH, ""};
             }

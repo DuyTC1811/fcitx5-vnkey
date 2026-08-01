@@ -80,5 +80,6 @@ void test_telex() {
         TELEX("kaffka", "kafka", "kafka >>> 'kafka");
         TELEX("Kaffka", "Kafka", "Kafka >>> 'Kafka");
         TELEX("data", "data", "data >>> 'data'");
+        TELEX("gias", "giá", "gias >>> 'giá'");
     }
 }

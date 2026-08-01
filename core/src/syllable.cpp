@@ -109,23 +109,29 @@ namespace engine {
             }
         }
 
+        int start = 0;
+        if (initial == U"g" && vowel.size() >= 2 && vowel[0] == U'i') {
+            start = 1;
+        }
+        const int n = static_cast<int>(vowel.size()) - start;
+
         // Quy tac 2: co phu am cuoi -> dau tren nguyen am cuoi ("toán", "học")
         if (!coda.empty()) {
             return static_cast<int>(vowel.size()) - 1;
         }
 
-        // Quy tac 3: khong phu am cuoi
-        if (vowel.size() == 1) {
-            return 0; // "má"
+        if (n == 1) {
+            return start;
         }
-        if (vowel.size() == 3) {
-            return 1; // "ngoại" -> giua
+        if (n == 3) {
+            return start + 1;
         }
         // 2 nguyen am: oa/oe/uy kieu moi -> dau cuoi ("hoá"); kieu cu -> dau dau ("hóa")
-        if (vowel == U"oa" || vowel == U"oe" || vowel == U"uy") {
-            return newToneStyle ? 1 : 0;
+        const auto eff = std::u32string_view(vowel).substr(start);
+        if (eff == U"oa" || eff == U"oe" || eff == U"uy") {
+            return newToneStyle ? start + 1 : start;
         }
-        return 0; // "của", "mía" -> dau dau
+        return start;
     }
 
     bool Syllable::structureOk() const {

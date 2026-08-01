@@ -103,26 +103,22 @@ void test_engine() {
     }
     {
         InputProcessor p(makeTelex(), Config{.spellCheck = false});
-        // Khong spellcheck: khong bao gio literal, coda cu phinh ra
         CHECK_EQ(feed(p, "kafk"), "kàk", "spellCheck=false: khong literal ('f' van la thanh huyen)");
     }
 
     std::printf("\n--- ENGINE: LITERAL MODE — flat_ vs raw_ ---\n");
     {
-        // flat_ = raw da GOP cap huy; ESCAPE van phai tra raw_ NGUYEN XI
         InputProcessor p(makeTelex());
-        feed(p, "kaffka"); // ff gop -> flat "kafka", raw "kaffka"
+        feed(p, "kaffka");
         CHECK_EQ(p.preedit(), "kafka", "literal: preedit = flat (ff gop con 1 f)");
         auto r = feedSpecial(p, KeyInput::Special::ESCAPE);
         CHECK_EQ(r.text, "kaffka", "literal + Esc: commit raw_ day du (khong phai flat)");
     }
     {
-        // Phim tone KHONG bi huy van phai nam trong flat (auto-restore)
         InputProcessor p(makeTelex());
         CHECK_EQ(feed(p, "kafka"), "kafka", "literal: tone 'f' hien lai trong flat");
     }
     {
-        // Da literal thi phim tone/dau khong transform nua
         InputProcessor p(makeTelex());
         feed(p, "kafk"); // literal
         feed(p, "s"); // 's' phai la ky tu thuong, khong phai dau sac
